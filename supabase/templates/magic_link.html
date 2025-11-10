@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Sign In to Your Account</title>
+    <!--[if mso]>
+      <style type="text/css">
+        body,
+        table,
+        td {
+          font-family: Arial, sans-serif !important;
+        }
+      </style>
+    <![endif]-->
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #fafafa;
+      font-family: Arial, Helvetica, sans-serif;
+    "
+  >
+    <table
+      role="presentation"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      width="100%"
+      style="background-color: #fafafa"
+    >
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <!-- Main Container -->
+          <table
+            role="presentation"
+            cellspacing="0"
+            cellpadding="0"
+            border="0"
+            width="600"
+            style="
+              max-width: 600px;
+              background-color: #ffffff;
+              border-radius: 8px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              border: 1px solid #e4e4e7;
+            "
+          >
+            <!-- Header -->
+            <tr>
+              <td
+                style="
+                  padding: 32px 40px 24px;
+                  border-bottom: 1px solid #e4e4e7;
+                "
+              >
+                <h1
+                  style="
+                    margin: 0;
+                    color: #171717;
+                    font-size: 24px;
+                    font-weight: 600;
+                    letter-spacing: -0.5px;
+                  "
+                >
+                  Invoice Manager
+                </h1>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding: 40px 40px 30px">
+                <p
+                  style="
+                    margin: 0 0 10px;
+                    color: #171717;
+                    font-size: 16px;
+                    line-height: 1.6;
+                  "
+                >
+                  {{ if .Email }}Hello {{ .Email }},{{ else }}Hello,{{ end }}
+                </p>
+                <p
+                  style="
+                    margin: 0 0 20px;
+                    color: #171717;
+                    font-size: 16px;
+                    line-height: 1.6;
+                  "
+                >
+                  Click the button below to securely sign in to your account{{
+                  if .RedirectTo }}. You'll be redirected to
+                  <strong>{{ .RedirectTo }}</strong>{{ end }}. This link will
+                  expire in 1 hour for your security.
+                </p>
+
+                <!-- CTA Button -->
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  width="100%"
+                >
+                  <tr>
+                    <td align="center" style="padding: 20px 0 30px">
+                      <a
+                        href="{{ .ConfirmationURL }}"
+                        style="
+                          display: inline-block;
+                          padding: 10px 24px;
+                          background-color: #2563eb;
+                          color: #ffffff;
+                          text-decoration: none;
+                          border-radius: 6px;
+                          font-weight: 500;
+                          font-size: 14px;
+                          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                        "
+                      >
+                        Sign In to Your Account
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Alternative Link -->
+                <p
+                  style="
+                    margin: 0 0 30px;
+                    color: #71717a;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    text-align: center;
+                  "
+                >
+                  Or copy and paste this link into your browser:<br />
+                  <a
+                    href="{{ .ConfirmationURL }}"
+                    style="
+                      color: #2563eb;
+                      text-decoration: none;
+                      word-break: break-all;
+                    "
+                    >{{ .ConfirmationURL }}</a
+                  >
+                </p>
+
+                <!-- Security Notice -->
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  width="100%"
+                  style="
+                    background-color: #fafafa;
+                    border-radius: 6px;
+                    border-left: 4px solid #2563eb;
+                  "
+                >
+                  <tr>
+                    <td style="padding: 16px 20px">
+                      <p
+                        style="
+                          margin: 0;
+                          color: #71717a;
+                          font-size: 13px;
+                          line-height: 1.5;
+                        "
+                      >
+                        <strong style="color: #171717">🔒 Security Tip:</strong>
+                        If you didn't request this sign-in link, you can safely
+                        ignore this email. Your account remains secure.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  padding: 24px 40px;
+                  background-color: #fafafa;
+                  border-radius: 0 0 8px 8px;
+                  border-top: 1px solid #e4e4e7;
+                "
+              >
+                <p
+                  style="
+                    margin: 0 0 10px;
+                    color: #a1a1aa;
+                    font-size: 12px;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  This is an automated message, please do not reply to this
+                  email.
+                </p>
+                <p
+                  style="
+                    margin: 0;
+                    color: #a1a1aa;
+                    font-size: 12px;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  {{ if .SiteURL }}<a
+                    href="{{ .SiteURL }}"
+                    style="color: #a1a1aa; text-decoration: none"
+                    >{{ .SiteURL }}</a
+                  ><br />{{ end }} © 2024 Invoice Manager. All rights reserved.
+                </p>
+                {{ if .Email }}
+                <p
+                  style="
+                    margin: 10px 0 0;
+                    color: #a1a1aa;
+                    font-size: 11px;
+                    text-align: center;
+                    line-height: 1.5;
+                  "
+                >
+                  This email was sent to {{ .Email }}
+                </p>
+                {{ end }}
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
