@@ -11,8 +11,7 @@ import Button from "@/components/ui/button";
 interface InvoiceItem {
   id?: string;
   description: string;
-  start_date?: string;
-  end_date?: string;
+  additional_info?: string;
   unit_price_ht: number;
   quantity: number;
   total_ht: number;
@@ -272,8 +271,7 @@ export default function InvoiceForm({
           const itemsToInsert = items.map((item, index) => ({
             invoice_id: newInvoice.id,
             description: item.description,
-            start_date: item.start_date || null,
-            end_date: item.end_date || null,
+            additional_info: item.additional_info || null,
             unit_price_ht: item.unit_price_ht,
             quantity: item.quantity,
             total_ht: item.total_ht,
@@ -298,8 +296,7 @@ export default function InvoiceForm({
         const itemsToInsert = items.map((item, index) => ({
           invoice_id: invoice.id,
           description: item.description,
-          start_date: item.start_date || null,
-          end_date: item.end_date || null,
+          additional_info: item.additional_info || null,
           unit_price_ht: item.unit_price_ht,
           quantity: item.quantity,
           total_ht: item.total_ht,
@@ -419,7 +416,7 @@ export default function InvoiceForm({
               className="rounded-lg border border-gray-200 dark:border-gray-700 p-4"
             >
               <div className="space-y-4">
-                <div>
+                <div className="space-y-4">
                   <Input
                     label="Description"
                     required
@@ -427,30 +424,19 @@ export default function InvoiceForm({
                     onChange={(e) =>
                       updateItem(index, "description", e.target.value)
                     }
+                    placeholder="e.g., January 2024 or Project milestone"
+                  />
+                  <Input
+                    label="Additional Information"
+                    value={item.additional_info || ""}
+                    onChange={(e) =>
+                      updateItem(index, "additional_info", e.target.value)
+                    }
+                    placeholder="Optional: dates, details, etc."
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-                  <div className="md:col-span-2">
-                    <Input
-                      label="Start Date"
-                      type="date"
-                      value={item.start_date || ""}
-                      onChange={(e) =>
-                        updateItem(index, "start_date", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Input
-                      label="End Date"
-                      type="date"
-                      value={item.end_date || ""}
-                      onChange={(e) =>
-                        updateItem(index, "end_date", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-4">
                     <Input
                       label="Price"
                       type="number"
@@ -466,7 +452,7 @@ export default function InvoiceForm({
                       }
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-4">
                     <Input
                       label="Qty"
                       type="number"
@@ -482,7 +468,7 @@ export default function InvoiceForm({
                       }
                     />
                   </div>
-                  <div className="md:col-span-3 flex items-end">
+                  <div className="md:col-span-4 flex items-end">
                     <div className="w-full">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Total

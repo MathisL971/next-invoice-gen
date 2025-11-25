@@ -3,8 +3,7 @@ import { formatDate, formatCurrency, formatNumber } from "@/lib/utils/format";
 
 interface InvoiceItem {
   description: string;
-  start_date?: string;
-  end_date?: string;
+  additional_info?: string;
   unit_price_ht: number;
   quantity: number;
   total_ht: number;
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: "#111827",
   },
-  dateRange: {
+  additionalInfo: {
     fontSize: 8,
     color: "#6B7280",
     marginTop: 2,
@@ -349,12 +348,8 @@ export default function InvoicePDF({
             <View key={index} style={styles.tableRow}>
               <View style={styles.colDescription}>
                 <Text style={styles.tableCellText}>{item.description}</Text>
-                {(item.start_date || item.end_date) && (
-                  <Text style={styles.dateRange}>
-                    {item.start_date && formatDate(item.start_date)}
-                    {item.start_date && item.end_date && " - "}
-                    {item.end_date && formatDate(item.end_date)}
-                  </Text>
+                {item.additional_info && (
+                  <Text style={styles.additionalInfo}>{item.additional_info}</Text>
                 )}
               </View>
               <View style={styles.colPrice}>

@@ -78,8 +78,7 @@ export async function POST(
       const itemsToInsert = items.map((item, index) => ({
         invoice_id: newInvoice.id,
         description: item.description,
-        start_date: item.start_date || null,
-        end_date: item.end_date || null,
+        additional_info: item.additional_info || null,
         unit_price_ht: item.unit_price_ht,
         quantity: item.quantity,
         total_ht: item.total_ht,

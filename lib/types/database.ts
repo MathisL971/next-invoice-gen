@@ -46,8 +46,7 @@ export interface InvoiceItem {
   id: string
   invoice_id: string
   description: string
-  start_date?: string
-  end_date?: string
+  additional_info?: string
   unit_price_ht: number
   quantity: number
   total_ht: number

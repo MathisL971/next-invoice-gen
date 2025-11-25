@@ -5,8 +5,7 @@ import Card from '@/components/ui/card'
 
 interface InvoiceItem {
   description: string
-  start_date?: string
-  end_date?: string
+  additional_info?: string
   unit_price_ht: number
   quantity: number
   total_ht: number
@@ -137,11 +136,9 @@ export default function InvoicePreview({
                 <tr key={index}>
                   <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                     <div>{item.description}</div>
-                    {(item.start_date || item.end_date) && (
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {item.start_date && formatDate(item.start_date)}
-                        {item.start_date && item.end_date && ' - '}
-                        {item.end_date && formatDate(item.end_date)}
+                    {item.additional_info && (
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        {item.additional_info}
                       </div>
                     )}
                   </td>
