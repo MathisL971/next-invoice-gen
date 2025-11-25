@@ -69,6 +69,7 @@ export default function InvoiceForm({
   const [formData, setFormData] = useState<Invoice>({
     reference: invoice?.reference || "",
     client_id: invoice?.client_id || "",
+    client_reference: invoice?.client_reference || "",
     invoice_date:
       invoice?.invoice_date || new Date().toISOString().split("T")[0],
     due_date:
@@ -210,6 +211,7 @@ export default function InvoiceForm({
           .update({
             reference: formData.reference || invoice.reference,
             client_id: formData.client_id,
+            client_reference: formData.client_reference?.trim() || null,
             invoice_date: formData.invoice_date,
             due_date: formData.due_date,
             payment_method: formData.payment_method,
@@ -238,7 +240,7 @@ export default function InvoiceForm({
 
         if (refError) throw refError;
 
-        // Get client reference
+        // Get client reference (use form value if provided, otherwise use client's reference)
         const selectedClient = clientsList.find(
           (c) => c.id === formData.client_id
         );
@@ -246,13 +248,16 @@ export default function InvoiceForm({
           throw new Error("Client not found");
         }
 
+        const clientReference =
+          formData.client_reference?.trim() || selectedClient.reference;
+
         const { data: newInvoice, error: insertError } = await supabase
           .from("invoices")
           .insert({
             user_id: user.id,
             reference: refData,
             client_id: formData.client_id,
-            client_reference: selectedClient.reference,
+            client_reference: clientReference,
             invoice_date: formData.invoice_date,
             due_date: formData.due_date,
             payment_method: formData.payment_method,
@@ -352,9 +357,18 @@ export default function InvoiceForm({
           label="Client"
           required
           value={formData.client_id}
-          onChange={(e) =>
-            setFormData({ ...formData, client_id: e.target.value })
-          }
+          onChange={(e) => {
+            const selectedClient = clientsList.find(
+              (c) => c.id === e.target.value
+            );
+            setFormData({
+              ...formData,
+              client_id: e.target.value,
+              // Auto-fill client reference when client is selected (only if not already set)
+              client_reference:
+                formData.client_reference || selectedClient?.reference || "",
+            });
+          }}
           options={[
             { value: "", label: "Select a client" },
             ...clientsList.map((client) => ({
@@ -362,6 +376,15 @@ export default function InvoiceForm({
               label: `${client.name} (${client.reference})`,
             })),
           ]}
+        />
+
+        <Input
+          label="Client Reference"
+          value={formData.client_reference || ""}
+          onChange={(e) =>
+            setFormData({ ...formData, client_reference: e.target.value })
+          }
+          placeholder="e.g., C-000001"
         />
 
         <Input

@@ -1,116 +1,134 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
-import Input from '@/components/ui/input'
-import Button from '@/components/ui/button'
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import Input from "@/components/ui/input";
+import Button from "@/components/ui/button";
 
 interface Client {
-  id?: string
-  reference: string
-  name: string
-  address?: string
+  id?: string;
+  reference: string;
+  name: string;
+  address?: string;
 }
 
 interface ClientFormProps {
-  client?: Client
-  initialReference?: string
+  client?: Client;
+  initialReference?: string;
 }
 
-export default function ClientForm({ client, initialReference }: ClientFormProps) {
-  const router = useRouter()
-  const supabase = createClient()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  
-  const initialFormData = useMemo(() => ({
-    reference: client?.reference || initialReference || '',
-    name: client?.name || '',
-    address: client?.address || '',
-  }), [client, initialReference])
-  
-  const [formData, setFormData] = useState<Client>(initialFormData)
+export default function ClientForm({
+  client,
+  initialReference,
+}: ClientFormProps) {
+  const router = useRouter();
+  const supabase = createClient();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const initialFormData = useMemo(
+    () => ({
+      reference: client?.reference || initialReference || "",
+      name: client?.name || "",
+      address: client?.address || "",
+    }),
+    [client, initialReference]
+  );
+
+  const [formData, setFormData] = useState<Client>(initialFormData);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      setError('You must be logged in')
-      toast.error('You must be logged in')
-      setLoading(false)
-      return
+      setError("You must be logged in");
+      toast.error("You must be logged in");
+      setLoading(false);
+      return;
     }
 
     if (client?.id) {
+      if (!formData.reference.trim()) {
+        setError("Reference cannot be empty");
+        toast.error("Reference cannot be empty");
+        setLoading(false);
+        return;
+      }
+
       // Update existing client
       const { error: updateError } = await supabase
-        .from('clients')
+        .from("clients")
         .update({
+          reference: formData.reference,
           name: formData.name,
           address: formData.address,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', client.id)
-        .eq('user_id', user.id)
+        .eq("id", client.id)
+        .eq("user_id", user.id);
 
       if (updateError) {
-        setError(updateError.message)
-        toast.error('Failed to update client', {
+        setError(updateError.message);
+        toast.error("Failed to update client", {
           description: updateError.message,
-        })
-        setLoading(false)
+        });
+        setLoading(false);
       } else {
-        toast.success('Client updated successfully')
-        router.refresh()
+        toast.success("Client updated successfully");
+        router.refresh();
       }
     } else {
-      // Create new client - use database function to generate reference
-      const { data: refData, error: refError } = await supabase.rpc(
-        'generate_client_reference',
-        { p_user_id: user.id }
-      )
+      // Create new client
+      let reference = formData.reference;
 
-      if (refError) {
-        setError(refError.message)
-        toast.error('Failed to generate client reference', {
-          description: refError.message,
-        })
-        setLoading(false)
-        return
+      if (!reference) {
+        // Generate reference if not provided
+        const { data: refData, error: refError } = await supabase.rpc(
+          "generate_client_reference",
+          { p_user_id: user.id }
+        );
+
+        if (refError) {
+          setError(refError.message);
+          toast.error("Failed to generate client reference", {
+            description: refError.message,
+          });
+          setLoading(false);
+          return;
+        }
+        reference = refData;
       }
 
-      const { error: insertError } = await supabase
-        .from('clients')
-        .insert({
-          user_id: user.id,
-          reference: refData,
-          name: formData.name,
-          address: formData.address || null,
-        })
+      const { error: insertError } = await supabase.from("clients").insert({
+        user_id: user.id,
+        reference: reference,
+        name: formData.name,
+        address: formData.address || null,
+      });
 
       if (insertError) {
-        setError(insertError.message)
-        toast.error('Failed to create client', {
+        setError(insertError.message);
+        toast.error("Failed to create client", {
           description: insertError.message,
-        })
-        setLoading(false)
+        });
+        setLoading(false);
       } else {
-        toast.success('Client created successfully')
-        router.push('/clients')
-        router.refresh()
+        toast.success("Client created successfully");
+        router.push("/clients");
+        router.refresh();
       }
     }
 
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,9 +140,11 @@ export default function ClientForm({ client, initialReference }: ClientFormProps
 
       <Input
         label="Reference"
+        onChange={(e) =>
+          setFormData({ ...formData, reference: e.target.value })
+        }
         value={formData.reference}
-        disabled
-        className="bg-gray-50 dark:bg-zinc-800"
+        placeholder="Auto-generated if left empty"
       />
 
       <Input
@@ -142,19 +162,18 @@ export default function ClientForm({ client, initialReference }: ClientFormProps
 
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : client ? 'Update Client' : 'Create Client'}
+          {loading ? "Saving..." : client ? "Update Client" : "Create Client"}
         </Button>
         {client && (
           <Button
             type="button"
             variant="secondary"
-            onClick={() => router.push('/clients')}
+            onClick={() => router.push("/clients")}
           >
             Cancel
           </Button>
         )}
       </div>
     </form>
-  )
+  );
 }
-
