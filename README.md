@@ -4,7 +4,7 @@ A comprehensive invoice management system built with Next.js 16, Supabase, and T
 
 ## Features
 
-- 🔐 **Authentication**: Email magic link authentication via Supabase
+- 🔐 **Authentication**: Email OTP (One-Time Password) authentication via Supabase
 - 📄 **Invoice Management**: Create, edit, view, and delete invoices
 - 👥 **Client Management**: Manage clients with auto-generated references
 - 📋 **Invoice Templates**: Save and reuse invoice templates

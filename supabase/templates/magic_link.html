@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Sign In to Your Account</title>
+    <title>Your Verification Code</title>
     <!--[if mso]>
       <style type="text/css">
         body,
@@ -85,19 +85,17 @@
                 </p>
                 <p
                   style="
-                    margin: 0 0 20px;
+                    margin: 0 0 30px;
                     color: #171717;
                     font-size: 16px;
                     line-height: 1.6;
                   "
                 >
-                  Click the button below to securely sign in to your account{{
-                  if .RedirectTo }}. You'll be redirected to
-                  <strong>{{ .RedirectTo }}</strong>{{ end }}. This link will
-                  expire in 1 hour for your security.
+                  Use the verification code below to sign in to your account.
+                  This code will expire in 1 hour for your security.
                 </p>
 
-                <!-- CTA Button -->
+                <!-- OTP Code Display -->
                 <table
                   role="presentation"
                   cellspacing="0"
@@ -106,28 +104,46 @@
                   width="100%"
                 >
                   <tr>
-                    <td align="center" style="padding: 20px 0 30px">
-                      <a
-                        href="{{ .ConfirmationURL }}"
+                    <td align="center" style="padding: 0 0 30px">
+                      <table
+                        role="presentation"
+                        cellspacing="0"
+                        cellpadding="0"
+                        border="0"
                         style="
-                          display: inline-block;
-                          padding: 10px 24px;
-                          background-color: #2563eb;
-                          color: #ffffff;
-                          text-decoration: none;
-                          border-radius: 6px;
-                          font-weight: 500;
-                          font-size: 14px;
-                          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+                          margin: 0 auto;
+                          background-color: #fafafa;
+                          border: 2px solid #e4e4e7;
+                          border-radius: 8px;
                         "
                       >
-                        Sign In to Your Account
-                      </a>
+                        <tr>
+                          <td
+                            align="center"
+                            style="
+                              padding: 24px 32px;
+                              font-family: 'Courier New', monospace;
+                            "
+                          >
+                            <span
+                              style="
+                                color: #171717;
+                                font-size: 32px;
+                                font-weight: 700;
+                                letter-spacing: 8px;
+                                line-height: 1.2;
+                              "
+                            >
+                              {{ .Token }}
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
                     </td>
                   </tr>
                 </table>
 
-                <!-- Alternative Link -->
+                <!-- Instructions -->
                 <p
                   style="
                     margin: 0 0 30px;
@@ -137,16 +153,8 @@
                     text-align: center;
                   "
                 >
-                  Or copy and paste this link into your browser:<br />
-                  <a
-                    href="{{ .ConfirmationURL }}"
-                    style="
-                      color: #2563eb;
-                      text-decoration: none;
-                      word-break: break-all;
-                    "
-                    >{{ .ConfirmationURL }}</a
-                  >
+                  Enter this code on the sign-in page to complete your
+                  authentication.
                 </p>
 
                 <!-- Security Notice -->
@@ -173,8 +181,9 @@
                         "
                       >
                         <strong style="color: #171717">🔒 Security Tip:</strong>
-                        If you didn't request this sign-in link, you can safely
-                        ignore this email. Your account remains secure.
+                        Never share this code with anyone. If you didn't request
+                        this verification code, you can safely ignore this
+                        email. Your account remains secure.
                       </p>
                     </td>
                   </tr>
