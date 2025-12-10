@@ -10,6 +10,16 @@ export interface Profile {
     IBAN?: string;
     BIC?: string;
   };
+  legal_info?: {
+    company_type?: string;
+    siret?: string;
+    siren?: string;
+    rcs?: string;
+    ape_naf?: string;
+    tva_number?: string;
+    service_type?: string;
+    late_payment_notice?: string;
+  };
   default_currency?: string;
   created_at: string;
   updated_at: string;

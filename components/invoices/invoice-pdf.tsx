@@ -35,6 +35,16 @@ interface Invoice {
       IBAN?: string;
       BIC?: string;
     };
+    legal_info?: {
+      company_type?: string;
+      siret?: string;
+      siren?: string;
+      rcs?: string;
+      ape_naf?: string;
+      tva_number?: string;
+      service_type?: string;
+      late_payment_notice?: string;
+    };
   };
   items: InvoiceItem[];
 }
@@ -448,7 +458,11 @@ export default function InvoicePDF({
             <Text style={styles.paymentInfo}>
               Mode de paiement: {invoice.payment_method}
             </Text>
-            <Text style={styles.footer}>Prestation de service</Text>
+            {sender?.legal_info?.service_type && (
+              <Text style={styles.footer}>
+                {sender.legal_info.service_type}
+              </Text>
+            )}
           </View>
         </View>
 
@@ -460,17 +474,44 @@ export default function InvoicePDF({
         )}
 
         {/* Legal Disclaimer - Positioned at bottom */}
-        <View style={styles.legalDisclaimer}>
-          <Text>
-            Micro-Entreprise - SIRET: 978 934 560 00019 - SIREN: 978 934 560 -
-            RCS: Basse-Terre - APE/NAF: 6201Z - Num TVA: FR 70 978 934 560
-          </Text>
-          <Text style={styles.legalDisclaimerText}>
-            En cas de retard de paiement, une indemnité forfaitaire pour frais
-            de recouvrement de 40 euros sera exigée (Décret n°2012-1115 du 2
-            octobre 2012).
-          </Text>
-        </View>
+        {(sender?.legal_info?.company_type ||
+          sender?.legal_info?.siret ||
+          sender?.legal_info?.siren ||
+          sender?.legal_info?.rcs ||
+          sender?.legal_info?.ape_naf ||
+          sender?.legal_info?.tva_number ||
+          sender?.legal_info?.late_payment_notice) && (
+          <View style={styles.legalDisclaimer}>
+            {(sender?.legal_info?.company_type ||
+              sender?.legal_info?.siret ||
+              sender?.legal_info?.siren ||
+              sender?.legal_info?.rcs ||
+              sender?.legal_info?.ape_naf ||
+              sender?.legal_info?.tva_number) && (
+              <Text>
+                {[
+                  sender?.legal_info?.company_type,
+                  sender?.legal_info?.siret &&
+                    `SIRET: ${sender.legal_info.siret}`,
+                  sender?.legal_info?.siren &&
+                    `SIREN: ${sender.legal_info.siren}`,
+                  sender?.legal_info?.rcs && `RCS: ${sender.legal_info.rcs}`,
+                  sender?.legal_info?.ape_naf &&
+                    `APE/NAF: ${sender.legal_info.ape_naf}`,
+                  sender?.legal_info?.tva_number &&
+                    `Num TVA: ${sender.legal_info.tva_number}`,
+                ]
+                  .filter(Boolean)
+                  .join(" - ")}
+              </Text>
+            )}
+            {sender?.legal_info?.late_payment_notice && (
+              <Text style={styles.legalDisclaimerText}>
+                {sender.legal_info.late_payment_notice}
+              </Text>
+            )}
+          </View>
+        )}
       </Page>
     </Document>
   );

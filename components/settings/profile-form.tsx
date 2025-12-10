@@ -22,6 +22,16 @@ interface Profile {
     IBAN?: string;
     BIC?: string;
   };
+  legal_info?: {
+    company_type?: string;
+    siret?: string;
+    siren?: string;
+    rcs?: string;
+    ape_naf?: string;
+    tva_number?: string;
+    service_type?: string;
+    late_payment_notice?: string;
+  };
 }
 
 interface ProfileFormData {
@@ -35,6 +45,16 @@ interface ProfileFormData {
     RIB?: string;
     IBAN?: string;
     BIC?: string;
+  };
+  legal_info?: {
+    company_type?: string;
+    siret?: string;
+    siren?: string;
+    rcs?: string;
+    ape_naf?: string;
+    tva_number?: string;
+    service_type?: string;
+    late_payment_notice?: string;
   };
 }
 
@@ -57,6 +77,16 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
       RIB: "",
       IBAN: "",
       BIC: "",
+    },
+    legal_info: profile.legal_info || {
+      company_type: "",
+      siret: "",
+      siren: "",
+      rcs: "",
+      ape_naf: "",
+      tva_number: "",
+      service_type: "",
+      late_payment_notice: "",
     },
   });
 
@@ -86,6 +116,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
           email: formData.email || null,
           default_currency: formData.default_currency || "EUR",
           banking_info: formData.banking_info,
+          legal_info: formData.legal_info,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
@@ -219,6 +250,143 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
               })
             }
           />
+        </div>
+      </Card>
+
+      <Card title="Legal Information">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          This information will appear at the bottom of your invoices.
+        </p>
+        <div className="space-y-4">
+          <Input
+            label="Company Type"
+            placeholder="e.g., Micro-Entreprise, SARL, SAS"
+            value={formData.legal_info?.company_type || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                legal_info: {
+                  ...formData.legal_info,
+                  company_type: e.target.value,
+                },
+              })
+            }
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="SIRET"
+              placeholder="e.g., 978 934 560 00019"
+              value={formData.legal_info?.siret || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  legal_info: {
+                    ...formData.legal_info,
+                    siret: e.target.value,
+                  },
+                })
+              }
+            />
+
+            <Input
+              label="SIREN"
+              placeholder="e.g., 978 934 560"
+              value={formData.legal_info?.siren || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  legal_info: {
+                    ...formData.legal_info,
+                    siren: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="RCS (City)"
+              placeholder="e.g., Paris, Basse-Terre"
+              value={formData.legal_info?.rcs || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  legal_info: {
+                    ...formData.legal_info,
+                    rcs: e.target.value,
+                  },
+                })
+              }
+            />
+
+            <Input
+              label="APE/NAF Code"
+              placeholder="e.g., 6201Z"
+              value={formData.legal_info?.ape_naf || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  legal_info: {
+                    ...formData.legal_info,
+                    ape_naf: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
+
+          <Input
+            label="VAT Number (Num TVA)"
+            placeholder="e.g., FR 70 978 934 560"
+            value={formData.legal_info?.tva_number || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                legal_info: {
+                  ...formData.legal_info,
+                  tva_number: e.target.value,
+                },
+              })
+            }
+          />
+
+          <Input
+            label="Service Type"
+            placeholder="e.g., Prestation de service"
+            value={formData.legal_info?.service_type || ""}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                legal_info: {
+                  ...formData.legal_info,
+                  service_type: e.target.value,
+                },
+              })
+            }
+          />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Late Payment Notice
+            </label>
+            <textarea
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              rows={3}
+              placeholder="e.g., En cas de retard de paiement, une indemnité forfaitaire pour frais de recouvrement de 40 euros sera exigée..."
+              value={formData.legal_info?.late_payment_notice || ""}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  legal_info: {
+                    ...formData.legal_info,
+                    late_payment_notice: e.target.value,
+                  },
+                })
+              }
+            />
+          </div>
         </div>
       </Card>
 
