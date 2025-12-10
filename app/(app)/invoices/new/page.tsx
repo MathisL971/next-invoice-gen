@@ -1,23 +1,33 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import InvoiceForm from '@/components/invoices/invoice-form'
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import InvoiceForm from "@/components/invoices/invoice-form";
 
 export default async function NewInvoicePage() {
-  const supabase = await createClient()
+  const supabase = await createClient();
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login')
+    redirect("/login");
   }
 
-  // Load clients
-  const { data: clients } = await supabase
-    .from('clients')
-    .select('id, name, reference')
-    .eq('user_id', user.id)
-    .order('name')
+  // Load clients and profile in parallel
+  const [clientsResult, profileResult] = await Promise.all([
+    supabase
+      .from("clients")
+      .select("id, name, reference")
+      .eq("user_id", user.id)
+      .order("name"),
+    supabase
+      .from("profiles")
+      .select("default_currency")
+      .eq("id", user.id)
+      .single(),
+  ]);
+
+  const clients = clientsResult.data;
+  const profile = profileResult.data;
 
   return (
     <div className="space-y-6">
@@ -30,8 +40,10 @@ export default async function NewInvoicePage() {
         </p>
       </div>
 
-      <InvoiceForm clients={clients || []} />
+      <InvoiceForm
+        clients={clients || []}
+        defaultCurrency={profile?.default_currency}
+      />
     </div>
-  )
+  );
 }
-

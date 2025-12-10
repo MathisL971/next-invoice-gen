@@ -23,7 +23,7 @@ export default async function InvoicesPage({
   let query = supabase
     .from("invoices")
     .select(
-      "id, reference, invoice_date, due_date, status, client_id, clients(name)"
+      "id, reference, invoice_date, due_date, status, currency, client_id, clients(name)"
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
@@ -94,45 +94,59 @@ export default async function InvoicesPage({
               "Actions",
             ]}
           >
-            {invoices.map((invoice: { id: string; reference: string; invoice_date: string; due_date: string; status: string; client_id: string; clients: { name: string } | { name: string }[] | null }) => {
-              const clientName = Array.isArray(invoice.clients) 
-                ? invoice.clients[0]?.name 
-                : invoice.clients?.name;
-              return (
-              <TableRow key={invoice.id}>
-                <TableCell className="font-medium">
-                  {invoice.reference}
-                </TableCell>
-                <TableCell>{clientName || "Unknown"}</TableCell>
-                <TableCell>{formatDate(invoice.invoice_date)}</TableCell>
-                <TableCell>{formatDate(invoice.due_date)}</TableCell>
-                <TableCell>
-                  {formatCurrency(invoiceTotals[invoice.id] || 0)}
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex rounded-full px-2 text-xs font-semibold ${
-                      invoice.status === "paid"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
-                        : invoice.status === "overdue"
-                        ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200"
-                        : invoice.status === "sent"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                    }`}
-                  >
-                    {invoice.status}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <InvoiceActions
-                    invoiceId={invoice.id}
-                    invoiceReference={invoice.reference}
-                  />
-                </TableCell>
-              </TableRow>
-            );
-            })}
+            {invoices.map(
+              (invoice: {
+                id: string;
+                reference: string;
+                invoice_date: string;
+                due_date: string;
+                status: string;
+                currency?: string;
+                client_id: string;
+                clients: { name: string } | { name: string }[] | null;
+              }) => {
+                const clientName = Array.isArray(invoice.clients)
+                  ? invoice.clients[0]?.name
+                  : invoice.clients?.name;
+                return (
+                  <TableRow key={invoice.id}>
+                    <TableCell className="font-medium">
+                      {invoice.reference}
+                    </TableCell>
+                    <TableCell>{clientName || "Unknown"}</TableCell>
+                    <TableCell>{formatDate(invoice.invoice_date)}</TableCell>
+                    <TableCell>{formatDate(invoice.due_date)}</TableCell>
+                    <TableCell>
+                      {formatCurrency(
+                        invoiceTotals[invoice.id] || 0,
+                        invoice.currency
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex rounded-full px-2 text-xs font-semibold ${
+                          invoice.status === "paid"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200"
+                            : invoice.status === "overdue"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200"
+                            : invoice.status === "sent"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {invoice.status}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <InvoiceActions
+                        invoiceId={invoice.id}
+                        invoiceReference={invoice.reference}
+                      />
+                    </TableCell>
+                  </TableRow>
+                );
+              }
+            )}
           </Table>
         </div>
       ) : (

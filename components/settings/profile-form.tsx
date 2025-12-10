@@ -1,102 +1,109 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { toast } from 'sonner'
-import Input from '@/components/ui/input'
-import Button from '@/components/ui/button'
-import Card from '@/components/ui/card'
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
+import Input from "@/components/ui/input";
+import Select from "@/components/ui/select";
+import Button from "@/components/ui/button";
+import Card from "@/components/ui/card";
+import { SUPPORTED_CURRENCIES } from "@/lib/utils/format";
 
 interface Profile {
-  id: string
-  company_name?: string
-  address?: string
-  phone?: string
-  email?: string
+  id: string;
+  company_name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  default_currency?: string;
   banking_info?: {
-    bank_name?: string
-    RIB?: string
-    IBAN?: string
-    BIC?: string
-  }
+    bank_name?: string;
+    RIB?: string;
+    IBAN?: string;
+    BIC?: string;
+  };
 }
 
 interface ProfileFormData {
-  company_name?: string
-  address?: string
-  phone?: string
-  email?: string
+  company_name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  default_currency?: string;
   banking_info?: {
-    bank_name?: string
-    RIB?: string
-    IBAN?: string
-    BIC?: string
-  }
+    bank_name?: string;
+    RIB?: string;
+    IBAN?: string;
+    BIC?: string;
+  };
 }
 
 interface ProfileFormProps {
-  profile: Profile
+  profile: Profile;
 }
 
 export default function ProfileForm({ profile }: ProfileFormProps) {
-  const supabase = createClient()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const supabase = createClient();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState<ProfileFormData>({
-    company_name: profile.company_name || '',
-    address: profile.address || '',
-    phone: profile.phone || '',
-    email: profile.email || '',
+    company_name: profile.company_name || "",
+    address: profile.address || "",
+    phone: profile.phone || "",
+    email: profile.email || "",
+    default_currency: profile.default_currency || "EUR",
     banking_info: profile.banking_info || {
-      bank_name: '',
-      RIB: '',
-      IBAN: '',
-      BIC: '',
+      bank_name: "",
+      RIB: "",
+      IBAN: "",
+      BIC: "",
     },
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     const {
       data: { user },
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (!user) {
-      setError('You must be logged in')
-      toast.error('You must be logged in')
-      setLoading(false)
-      return
+      setError("You must be logged in");
+      toast.error("You must be logged in");
+      setLoading(false);
+      return;
     }
 
     try {
       const { error: updateError } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           company_name: formData.company_name || null,
           address: formData.address || null,
           phone: formData.phone || null,
           email: formData.email || null,
+          default_currency: formData.default_currency || "EUR",
           banking_info: formData.banking_info,
           updated_at: new Date().toISOString(),
         })
-        .eq('id', user.id)
+        .eq("id", user.id);
 
-      if (updateError) throw updateError
+      if (updateError) throw updateError;
 
-      toast.success('Profile updated successfully')
+      toast.success("Profile updated successfully");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred'
-      setError(errorMessage)
-      toast.error('Failed to update profile', {
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error("Failed to update profile", {
         description: errorMessage,
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -111,26 +118,46 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
           <Input
             label="Company Name"
             value={formData.company_name}
-            onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, company_name: e.target.value })
+            }
           />
 
           <Input
             label="Address"
             value={formData.address}
-            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, address: e.target.value })
+            }
           />
 
           <Input
             label="Phone"
             value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
           />
 
           <Input
             label="Email"
             type="email"
             value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+          />
+
+          <Select
+            label="Default Currency"
+            value={formData.default_currency || "EUR"}
+            onChange={(e) =>
+              setFormData({ ...formData, default_currency: e.target.value })
+            }
+            options={SUPPORTED_CURRENCIES.map((c) => ({
+              value: c.code,
+              label: c.name,
+            }))}
           />
         </div>
       </Card>
@@ -139,7 +166,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
         <div className="space-y-4">
           <Input
             label="Bank Name"
-            value={formData.banking_info?.bank_name || ''}
+            value={formData.banking_info?.bank_name || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
@@ -153,7 +180,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
           <Input
             label="RIB"
-            value={formData.banking_info?.RIB || ''}
+            value={formData.banking_info?.RIB || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
@@ -167,7 +194,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
           <Input
             label="IBAN"
-            value={formData.banking_info?.IBAN || ''}
+            value={formData.banking_info?.IBAN || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
@@ -181,7 +208,7 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
           <Input
             label="BIC"
-            value={formData.banking_info?.BIC || ''}
+            value={formData.banking_info?.BIC || ""}
             onChange={(e) =>
               setFormData({
                 ...formData,
@@ -197,10 +224,9 @@ export default function ProfileForm({ profile }: ProfileFormProps) {
 
       <div className="flex justify-end">
         <Button type="submit" disabled={loading}>
-          {loading ? 'Saving...' : 'Save Changes'}
+          {loading ? "Saving..." : "Save Changes"}
         </Button>
       </div>
     </form>
-  )
+  );
 }
-

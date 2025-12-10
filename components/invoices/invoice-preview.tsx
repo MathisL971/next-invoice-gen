@@ -1,49 +1,50 @@
-'use client'
+"use client";
 
-import { formatDate, formatCurrency, formatNumber } from '@/lib/utils/format'
-import Card from '@/components/ui/card'
+import { formatDate, formatCurrency, formatNumber } from "@/lib/utils/format";
+import Card from "@/components/ui/card";
 
 interface InvoiceItem {
-  description: string
-  additional_info?: string
-  unit_price_ht: number
-  quantity: number
-  total_ht: number
+  description: string;
+  additional_info?: string;
+  unit_price_ht: number;
+  quantity: number;
+  total_ht: number;
 }
 
 interface Invoice {
-  reference: string
-  version: string
-  invoice_date: string
-  due_date: string
-  payment_method: string
-  vat_applicable: boolean
-  vat_article?: string
-  notes?: string
-  client_reference?: string
+  reference: string;
+  version: string;
+  invoice_date: string;
+  due_date: string;
+  payment_method: string;
+  currency?: string;
+  vat_applicable: boolean;
+  vat_article?: string;
+  notes?: string;
+  client_reference?: string;
   clients?: {
-    name: string
-    address?: string
-  }
+    name: string;
+    address?: string;
+  };
   profiles?: {
-    company_name?: string
-    address?: string
-    phone?: string
-    email?: string
+    company_name?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
     banking_info?: {
-      bank_name?: string
-      RIB?: string
-      IBAN?: string
-      BIC?: string
-    }
-  }
-  items: InvoiceItem[]
+      bank_name?: string;
+      RIB?: string;
+      IBAN?: string;
+      BIC?: string;
+    };
+  };
+  items: InvoiceItem[];
 }
 
 interface InvoicePreviewProps {
-  invoice: Invoice
-  totalHT: number
-  totalTTC: number
+  invoice: Invoice;
+  totalHT: number;
+  totalTTC: number;
 }
 
 export default function InvoicePreview({
@@ -51,8 +52,9 @@ export default function InvoicePreview({
   totalHT,
   totalTTC,
 }: InvoicePreviewProps) {
-  const sender = invoice.profiles
-  const client = invoice.clients
+  const sender = invoice.profiles;
+  const client = invoice.clients;
+  const currency = invoice.currency || "EUR";
 
   return (
     <Card>
@@ -143,13 +145,13 @@ export default function InvoicePreview({
                     )}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-gray-900 dark:text-white">
-                    {formatCurrency(item.unit_price_ht)}
+                    {formatCurrency(item.unit_price_ht, currency)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-gray-900 dark:text-white">
                     {formatNumber(item.quantity)}
                   </td>
                   <td className="px-4 py-3 text-right text-sm text-gray-900 dark:text-white">
-                    {formatCurrency(item.total_ht)}
+                    {formatCurrency(item.total_ht, currency)}
                   </td>
                 </tr>
               ))}
@@ -161,29 +163,37 @@ export default function InvoicePreview({
         <div className="flex justify-end mt-6">
           <div className="w-64 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Total HT:</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                Total HT:
+              </span>
               <span className="font-semibold text-gray-900 dark:text-white">
-                {formatCurrency(totalHT)}
+                {formatCurrency(totalHT, currency)}
               </span>
             </div>
             {invoice.vat_applicable && (
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600 dark:text-gray-400">TVA (20%):</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  TVA (20%):
+                </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(totalTTC - totalHT)}
+                  {formatCurrency(totalTTC - totalHT, currency)}
                 </span>
               </div>
             )}
             <div className="flex justify-between text-base font-bold border-t border-gray-300 dark:border-gray-600 pt-2">
-              <span className="text-gray-900 dark:text-white">Total Net TTC:</span>
               <span className="text-gray-900 dark:text-white">
-                {formatCurrency(totalTTC)}
+                Total Net TTC:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {formatCurrency(totalTTC, currency)}
               </span>
             </div>
             <div className="flex justify-between text-base font-bold">
-              <span className="text-gray-900 dark:text-white">Net à payer:</span>
               <span className="text-gray-900 dark:text-white">
-                {formatCurrency(totalTTC)}
+                Net à payer:
+              </span>
+              <span className="text-gray-900 dark:text-white">
+                {formatCurrency(totalTTC, currency)}
               </span>
             </div>
           </div>
@@ -207,9 +217,15 @@ export default function InvoicePreview({
                 {sender.banking_info.bank_name && (
                   <p>Banque: {sender.banking_info.bank_name}</p>
                 )}
-                {sender.banking_info.RIB && <p>RIB: {sender.banking_info.RIB}</p>}
-                {sender.banking_info.IBAN && <p>IBAN: {sender.banking_info.IBAN}</p>}
-                {sender.banking_info.BIC && <p>BIC: {sender.banking_info.BIC}</p>}
+                {sender.banking_info.RIB && (
+                  <p>RIB: {sender.banking_info.RIB}</p>
+                )}
+                {sender.banking_info.IBAN && (
+                  <p>IBAN: {sender.banking_info.IBAN}</p>
+                )}
+                {sender.banking_info.BIC && (
+                  <p>BIC: {sender.banking_info.BIC}</p>
+                )}
               </div>
             )}
           </div>
@@ -234,6 +250,5 @@ export default function InvoicePreview({
         </div>
       </div>
     </Card>
-  )
+  );
 }
-

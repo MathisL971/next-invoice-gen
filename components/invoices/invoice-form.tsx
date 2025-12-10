@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import Button from "@/components/ui/button";
+import { formatCurrency, SUPPORTED_CURRENCIES } from "@/lib/utils/format";
 
 interface InvoiceItem {
   id?: string;
@@ -27,6 +28,7 @@ interface Invoice {
   invoice_date: string;
   due_date: string;
   payment_method: string;
+  currency?: string;
   status?: string;
   vat_applicable: boolean;
   vat_article?: string;
@@ -43,11 +45,13 @@ interface Client {
 interface InvoiceFormProps {
   invoice?: Invoice;
   clients?: Client[];
+  defaultCurrency?: string;
 }
 
 export default function InvoiceForm({
   invoice,
   clients = [],
+  defaultCurrency = "EUR",
 }: InvoiceFormProps) {
   const router = useRouter();
   const supabase = createClient();
@@ -78,6 +82,7 @@ export default function InvoiceForm({
         .toISOString()
         .split("T")[0],
     payment_method: invoice?.payment_method || "Virement",
+    currency: invoice?.currency || defaultCurrency,
     vat_applicable: invoice?.vat_applicable || false,
     vat_article: invoice?.vat_article || "",
     notes: invoice?.notes || "",
@@ -215,6 +220,7 @@ export default function InvoiceForm({
             invoice_date: formData.invoice_date,
             due_date: formData.due_date,
             payment_method: formData.payment_method,
+            currency: formData.currency,
             vat_applicable: formData.vat_applicable,
             vat_article: formData.vat_article || null,
             notes: formData.notes || null,
@@ -261,6 +267,7 @@ export default function InvoiceForm({
             invoice_date: formData.invoice_date,
             due_date: formData.due_date,
             payment_method: formData.payment_method,
+            currency: formData.currency,
             status: "draft",
             vat_applicable: formData.vat_applicable,
             vat_article: formData.vat_article || null,
@@ -420,6 +427,18 @@ export default function InvoiceForm({
             { value: "Carte", label: "Carte" },
           ]}
         />
+
+        <Select
+          label="Currency"
+          value={formData.currency || "EUR"}
+          onChange={(e) =>
+            setFormData({ ...formData, currency: e.target.value })
+          }
+          options={SUPPORTED_CURRENCIES.map((c) => ({
+            value: c.code,
+            label: c.name,
+          }))}
+        />
       </div>
 
       <div className="space-y-4">
@@ -497,7 +516,7 @@ export default function InvoiceForm({
                         Total
                       </label>
                       <div className="rounded-md border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-zinc-800 px-3 py-2 text-sm">
-                        {item.total_ht.toFixed(2)} €
+                        {formatCurrency(item.total_ht, formData.currency)}
                       </div>
                     </div>
                   </div>
@@ -555,7 +574,7 @@ export default function InvoiceForm({
           <div className="flex justify-between">
             <span className="text-gray-600 dark:text-gray-400">Total HT:</span>
             <span className="font-semibold text-gray-900 dark:text-white">
-              {totalHT.toFixed(2)} €
+              {formatCurrency(totalHT, formData.currency)}
             </span>
           </div>
           {formData.vat_applicable && (
@@ -564,7 +583,7 @@ export default function InvoiceForm({
                 TVA (20%):
               </span>
               <span className="font-semibold text-gray-900 dark:text-white">
-                {(totalTTC - totalHT).toFixed(2)} €
+                {formatCurrency(totalTTC - totalHT, formData.currency)}
               </span>
             </div>
           )}
@@ -573,7 +592,7 @@ export default function InvoiceForm({
               Total TTC:
             </span>
             <span className="text-lg font-semibold text-gray-900 dark:text-white">
-              {totalTTC.toFixed(2)} €
+              {formatCurrency(totalTTC, formData.currency)}
             </span>
           </div>
         </div>

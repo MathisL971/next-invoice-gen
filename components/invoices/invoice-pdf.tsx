@@ -15,6 +15,7 @@ interface Invoice {
   invoice_date: string;
   due_date: string;
   payment_method: string;
+  currency?: string;
   vat_applicable: boolean;
   vat_article?: string;
   notes?: string;
@@ -265,6 +266,7 @@ export default function InvoicePDF({
 }: InvoicePDFProps) {
   const sender = invoice.profiles;
   const client = invoice.clients;
+  const currency = invoice.currency || "EUR";
 
   return (
     <Document>
@@ -349,12 +351,14 @@ export default function InvoicePDF({
               <View style={styles.colDescription}>
                 <Text style={styles.tableCellText}>{item.description}</Text>
                 {item.additional_info && (
-                  <Text style={styles.additionalInfo}>{item.additional_info}</Text>
+                  <Text style={styles.additionalInfo}>
+                    {item.additional_info}
+                  </Text>
                 )}
               </View>
               <View style={styles.colPrice}>
                 <Text style={styles.tableCellText}>
-                  {formatCurrency(item.unit_price_ht)}
+                  {formatCurrency(item.unit_price_ht, currency)}
                 </Text>
               </View>
               <View style={styles.colQuantity}>
@@ -364,7 +368,7 @@ export default function InvoicePDF({
               </View>
               <View style={styles.colTotal}>
                 <Text style={styles.tableCellText}>
-                  {formatCurrency(item.total_ht)}
+                  {formatCurrency(item.total_ht, currency)}
                 </Text>
               </View>
             </View>
@@ -375,23 +379,29 @@ export default function InvoicePDF({
         <View style={styles.totals}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total HT:</Text>
-            <Text style={styles.totalValue}>{formatCurrency(totalHT)}</Text>
+            <Text style={styles.totalValue}>
+              {formatCurrency(totalHT, currency)}
+            </Text>
           </View>
           {invoice.vat_applicable && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>TVA (20%):</Text>
               <Text style={styles.totalValue}>
-                {formatCurrency(totalTTC - totalHT)}
+                {formatCurrency(totalTTC - totalHT, currency)}
               </Text>
             </View>
           )}
           <View style={styles.totalFinalRow}>
             <Text style={styles.totalFinal}>Total Net TTC:</Text>
-            <Text style={styles.totalFinal}>{formatCurrency(totalTTC)}</Text>
+            <Text style={styles.totalFinal}>
+              {formatCurrency(totalTTC, currency)}
+            </Text>
           </View>
           <View style={styles.totalFinalRowBottom}>
             <Text style={styles.totalFinal}>Net à payer:</Text>
-            <Text style={styles.totalFinal}>{formatCurrency(totalTTC)}</Text>
+            <Text style={styles.totalFinal}>
+              {formatCurrency(totalTTC, currency)}
+            </Text>
           </View>
         </View>
 

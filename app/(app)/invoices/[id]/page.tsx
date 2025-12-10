@@ -135,7 +135,7 @@ export default async function InvoiceDetailPage({
                   Total HT:
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(totalHT)}
+                  {formatCurrency(totalHT, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -143,7 +143,7 @@ export default async function InvoiceDetailPage({
                   Total TTC:
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(totalTTC)}
+                  {formatCurrency(totalTTC, invoice.currency)}
                 </span>
               </div>
             </div>
@@ -152,6 +152,7 @@ export default async function InvoiceDetailPage({
           <InvoiceForm
             invoice={{ ...invoice, items: items || [] }}
             clients={clients || []}
+            defaultCurrency={invoice.profiles?.default_currency}
           />
         </div>
       </div>
