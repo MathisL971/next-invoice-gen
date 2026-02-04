@@ -1,5 +1,9 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
-import { formatDate, formatCurrency, formatNumber } from "@/lib/utils/format";
+import {
+  formatDate,
+  formatCurrencyForPdf,
+  formatNumberForPdf,
+} from "@/lib/utils/format";
 
 interface InvoiceItem {
   description: string;
@@ -368,17 +372,17 @@ export default function InvoicePDF({
               </View>
               <View style={styles.colPrice}>
                 <Text style={styles.tableCellText}>
-                  {formatCurrency(item.unit_price_ht, currency)}
+                  {formatCurrencyForPdf(item.unit_price_ht, currency)}
                 </Text>
               </View>
               <View style={styles.colQuantity}>
                 <Text style={styles.tableCellText}>
-                  {formatNumber(item.quantity)}
+                  {formatNumberForPdf(item.quantity)}
                 </Text>
               </View>
               <View style={styles.colTotal}>
                 <Text style={styles.tableCellText}>
-                  {formatCurrency(item.total_ht, currency)}
+                  {formatCurrencyForPdf(item.total_ht, currency)}
                 </Text>
               </View>
             </View>
@@ -390,27 +394,27 @@ export default function InvoicePDF({
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total HT:</Text>
             <Text style={styles.totalValue}>
-              {formatCurrency(totalHT, currency)}
+              {formatCurrencyForPdf(totalHT, currency)}
             </Text>
           </View>
           {invoice.vat_applicable && (
             <View style={styles.totalRow}>
               <Text style={styles.totalLabel}>TVA (20%):</Text>
               <Text style={styles.totalValue}>
-                {formatCurrency(totalTTC - totalHT, currency)}
+                {formatCurrencyForPdf(totalTTC - totalHT, currency)}
               </Text>
             </View>
           )}
           <View style={styles.totalFinalRow}>
             <Text style={styles.totalFinal}>Total Net TTC:</Text>
             <Text style={styles.totalFinal}>
-              {formatCurrency(totalTTC, currency)}
+              {formatCurrencyForPdf(totalTTC, currency)}
             </Text>
           </View>
           <View style={styles.totalFinalRowBottom}>
             <Text style={styles.totalFinal}>Net à payer:</Text>
             <Text style={styles.totalFinal}>
-              {formatCurrency(totalTTC, currency)}
+              {formatCurrencyForPdf(totalTTC, currency)}
             </Text>
           </View>
         </View>

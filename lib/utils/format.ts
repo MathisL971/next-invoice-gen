@@ -36,6 +36,14 @@ export function formatDate(date: Date | string | null | undefined): string {
 }
 
 /**
+ * Replace Unicode space characters used as thousands separators with regular space.
+ * Used for PDF output where Helvetica may render U+202F (narrow no-break space) as a slash.
+ */
+function toPdfSafeSpaces(s: string): string {
+  return s.replace(/\u202F|\u00A0/g, " ");
+}
+
+/**
  * Format number in French format (comma for decimals, space for thousands)
  */
 export function formatNumber(
@@ -50,6 +58,15 @@ export function formatNumber(
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(num);
+}
+
+/**
+ * Same as formatNumber but with regular spaces for PDF rendering (avoids "3/000" display bug).
+ */
+export function formatNumberForPdf(
+  value: number | string | null | undefined
+): string {
+  return toPdfSafeSpaces(formatNumber(value));
 }
 
 /**
@@ -90,6 +107,16 @@ export function formatCurrency(
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   }).format(num);
+}
+
+/**
+ * Same as formatCurrency but with regular spaces for PDF rendering (avoids "3/000" display bug).
+ */
+export function formatCurrencyForPdf(
+  value: number | string | null | undefined,
+  currency: string = "EUR"
+): string {
+  return toPdfSafeSpaces(formatCurrency(value, currency));
 }
 
 /**
