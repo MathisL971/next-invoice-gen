@@ -5,10 +5,8 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: "📊" },
   { name: "Invoices", href: "/invoices", icon: "📄" },
   { name: "Clients", href: "/clients", icon: "👥" },
-  { name: "Templates", href: "/templates", icon: "📋" },
   { name: "Settings", href: "/settings", icon: "⚙️" },
 ];
 
