@@ -8,3 +8,4 @@ ALTER TABLE profiles ADD COLUMN default_currency TEXT DEFAULT 'EUR';
 
 -- Add default_currency to invoice_templates
 ALTER TABLE invoice_templates ADD COLUMN default_currency TEXT DEFAULT 'EUR';
+

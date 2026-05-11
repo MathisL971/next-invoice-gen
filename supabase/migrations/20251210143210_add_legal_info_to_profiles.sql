@@ -13,3 +13,4 @@ ALTER TABLE profiles ADD COLUMN legal_info JSONB DEFAULT '{}'::jsonb;
 --   "service_type": "Prestation de service",
 --   "late_payment_notice": "En cas de retard de paiement, une indemnité forfaitaire pour frais de recouvrement de 40 euros sera exigée (Décret n°2012-1115 du 2 octobre 2012)."
 -- }
+
