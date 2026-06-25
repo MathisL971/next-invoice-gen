@@ -22,6 +22,7 @@ interface Invoice {
   vat_article?: string;
   notes?: string;
   client_reference?: string;
+  document_type?: "invoice" | "quote";
   clients?: {
     name: string;
     address?: string;
@@ -55,6 +56,8 @@ export default function InvoicePreview({
   const sender = invoice.profiles;
   const client = invoice.clients;
   const currency = invoice.currency || "EUR";
+  const isQuote = invoice.document_type === "quote";
+  const documentTitle = isQuote ? "DEVIS" : "FACTURE";
 
   return (
     <Card>
@@ -86,7 +89,7 @@ export default function InvoicePreview({
           <div className="text-right">
             <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                FACTURE
+                {documentTitle}
               </h1>
             </div>
             <div className="mt-4 space-y-1 text-sm text-gray-600 dark:text-gray-400">

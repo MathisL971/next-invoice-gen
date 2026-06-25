@@ -20,19 +20,34 @@ export default function DuplicateButton({ invoiceId }: DuplicateButtonProps) {
         method: "POST",
       });
 
+      if (response.status === 403) {
+        const data = await response.json().catch(() => ({}));
+        if (data?.error === "quota_exceeded") {
+          toast.error("Limite de la formule gratuite atteinte", {
+            description: "Passez à Pro pour créer plus de factures ce mois-ci.",
+            action: {
+              label: "Passer à Pro",
+              onClick: () => router.push("/settings?tab=abonnement"),
+            },
+          });
+          return;
+        }
+      }
+
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to duplicate invoice");
+        throw new Error(data.error || "Duplication impossible");
       }
 
       const data = await response.json();
-      toast.success("Invoice duplicated successfully");
+      toast.success("Facture dupliquée");
       router.push(`/invoices/${data.id}`);
       router.refresh();
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+      const errorMessage =
+        error instanceof Error ? error.message : "Une erreur est survenue";
       console.error("Error duplicating invoice:", error);
-      toast.error("Failed to duplicate invoice", {
+      toast.error("Duplication impossible", {
         description: errorMessage,
       });
     } finally {
@@ -42,7 +57,7 @@ export default function DuplicateButton({ invoiceId }: DuplicateButtonProps) {
 
   return (
     <Button variant="secondary" onClick={handleDuplicate} disabled={loading}>
-      {loading ? "Duplicating..." : "Duplicate"}
+      {loading ? "Duplication…" : "Dupliquer"}
     </Button>
   );
 }

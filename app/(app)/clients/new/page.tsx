@@ -1,6 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ClientForm from '@/components/clients/client-form'
+import QuotaReached from '@/components/billing/quota-reached'
+import PageHeader from '@/components/layout/page-header'
+import Panel from '@/components/ui/panel'
+import {
+  getCurrentPlan,
+  getUsage,
+  FREE_CLIENT_LIMIT,
+} from '@/lib/billing/entitlements'
 
 export default async function NewClientPage() {
   const supabase = await createClient()
@@ -12,6 +20,9 @@ export default async function NewClientPage() {
     redirect('/login')
   }
 
+  const [plan, usage] = await Promise.all([getCurrentPlan(), getUsage()])
+  const overQuota = plan.plan === 'free' && usage.clients >= FREE_CLIENT_LIMIT
+
   // Get the last client number to generate next reference
   const { data: lastClient } = await supabase
     .from('clients')
@@ -19,7 +30,7 @@ export default async function NewClientPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
   let nextReference = 'C-000001'
   if (lastClient?.reference) {
@@ -32,16 +43,22 @@ export default async function NewClientPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          New Client
-        </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Add a new client to your system
-        </p>
-      </div>
+      <PageHeader
+        title="Nouveau client"
+        description="Ajoutez un nouveau client"
+      />
 
-      <ClientForm initialReference={nextReference} />
+      {overQuota ? (
+        <QuotaReached
+          resource="clients"
+          used={usage.clients}
+          limit={FREE_CLIENT_LIMIT}
+        />
+      ) : (
+        <Panel accent>
+          <ClientForm initialReference={nextReference} />
+        </Panel>
+      )}
     </div>
   )
 }

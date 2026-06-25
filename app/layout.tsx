@@ -14,8 +14,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Invoice Manager",
-  description: "Manage your invoices, clients, and payments",
+  title: {
+    default: "Alizé",
+    template: "%s — Alizé",
+  },
+  description:
+    "Facturation, déclaration de CA et cotisations CPS pour les micro-entrepreneurs de Saint-Barthélemy.",
 };
 
 export default function RootLayout({
@@ -24,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

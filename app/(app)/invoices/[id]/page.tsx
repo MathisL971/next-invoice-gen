@@ -7,8 +7,11 @@ import InvoicePreview from "@/components/invoices/invoice-preview";
 import StatusToggle from "@/components/invoices/status-toggle";
 import DuplicateButton from "@/components/invoices/duplicate-button";
 import DeleteButton from "@/components/invoices/delete-button";
+import PageHeader from "@/components/layout/page-header";
+import Panel from "@/components/ui/panel";
 import { formatDate, formatCurrency } from "@/lib/utils/format";
 import { isOverdue } from "@/lib/utils/invoice-status";
+import { getInvoiceStatusLabel } from "@/lib/utils/labels";
 
 export default async function InvoiceDetailPage({
   params,
@@ -34,6 +37,10 @@ export default async function InvoiceDetailPage({
 
   if (error || !invoice) {
     redirect("/invoices");
+  }
+
+  if (invoice.document_type === "quote") {
+    redirect(`/quotes/${id}`);
   }
 
   const { data: items } = await supabase
@@ -70,26 +77,22 @@ export default async function InvoiceDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {invoice.reference}
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Version {invoice.version} • Created {formatDate(invoice.created_at)}
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/invoices">
-            <Button variant="secondary">Back to Invoices</Button>
-          </Link>
-          <Link href={`/api/invoices/${id}/pdf`} target="_blank">
-            <Button>Download PDF</Button>
-          </Link>
-          <DuplicateButton invoiceId={id} />
-          <DeleteButton invoiceId={id} invoiceReference={invoice.reference} />
-        </div>
-      </div>
+      <PageHeader
+        title={invoice.reference}
+        description={`Version ${invoice.version} · Créée le ${formatDate(invoice.created_at)}`}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Link href="/invoices">
+              <Button variant="secondary">Retour aux factures</Button>
+            </Link>
+            <Link href={`/api/invoices/${id}/pdf`} target="_blank">
+              <Button>Télécharger le PDF</Button>
+            </Link>
+            <DuplicateButton invoiceId={id} />
+            <DeleteButton invoiceId={id} invoiceReference={invoice.reference} />
+          </div>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="space-y-6">
@@ -104,14 +107,14 @@ export default async function InvoiceDetailPage({
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-lg bg-white dark:bg-zinc-900 p-6 shadow">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Invoice Details
+          <Panel accent>
+            <h2 className="mb-4 text-lg font-semibold text-[#1a454f] dark:text-teal-50">
+              Détails de la facture
             </h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600 dark:text-gray-400">
-                  Status:
+              <div className="flex items-center justify-between">
+                <span className="text-stone-500 dark:text-stone-400">
+                  Statut :
                 </span>
                 <div className="flex items-center gap-2">
                   <span
@@ -121,39 +124,41 @@ export default async function InvoiceDetailPage({
                         : displayStatus === "overdue"
                         ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200"
                         : displayStatus === "sent"
-                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                        ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-200"
+                        : "bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200"
                     }`}
                   >
-                    {displayStatus}
+                    {getInvoiceStatusLabel(displayStatus)}
                   </span>
                 </div>
               </div>
               <StatusToggle invoiceId={id} currentStatus={displayStatus} />
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-stone-500 dark:text-stone-400">
                   Total HT:
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-[#1a454f] dark:text-teal-50">
                   {formatCurrency(totalHT, invoice.currency)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-stone-500 dark:text-stone-400">
                   Total TTC:
                 </span>
-                <span className="font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-[#1a454f] dark:text-teal-50">
                   {formatCurrency(totalTTC, invoice.currency)}
                 </span>
               </div>
             </div>
-          </div>
+          </Panel>
 
-          <InvoiceForm
+          <Panel accent>
+            <InvoiceForm
             invoice={{ ...invoice, items: items || [] }}
             clients={clients || []}
             defaultCurrency={invoice.profiles?.default_currency}
           />
+          </Panel>
         </div>
       </div>
     </div>

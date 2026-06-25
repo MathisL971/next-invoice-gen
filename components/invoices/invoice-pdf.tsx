@@ -24,6 +24,7 @@ interface Invoice {
   vat_article?: string;
   notes?: string;
   client_reference?: string;
+  document_type?: "invoice" | "quote";
   clients?: {
     name: string;
     address?: string;
@@ -281,6 +282,8 @@ export default function InvoicePDF({
   const sender = invoice.profiles;
   const client = invoice.clients;
   const currency = invoice.currency || "EUR";
+  const isQuote = invoice.document_type === "quote";
+  const documentTitle = isQuote ? "DEVIS" : "FACTURE";
 
   return (
     <Document>
@@ -318,7 +321,7 @@ export default function InvoicePDF({
             </View>
             <View>
               <View style={styles.titleBox}>
-                <Text style={styles.title}>FACTURE</Text>
+                <Text style={styles.title}>{documentTitle}</Text>
               </View>
               <View style={styles.invoiceInfo}>
                 <Text>Référence: {invoice.reference}</Text>

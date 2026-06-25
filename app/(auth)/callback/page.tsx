@@ -143,10 +143,12 @@ function AuthCallbackContent() {
   }, [searchParams, supabase])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
+    <div className="app-shell-bg flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <p className="text-gray-600 dark:text-gray-400">
-          {status === 'loading' ? 'Completing sign in...' : 'Authentication failed. Redirecting...'}
+        <p className="text-stone-500 dark:text-stone-400">
+          {status === 'loading'
+            ? 'Connexion en cours…'
+            : 'Échec de l\'authentification. Redirection…'}
         </p>
       </div>
     </div>
@@ -156,9 +158,9 @@ function AuthCallbackContent() {
 export default function AuthCallback() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black">
+      <div className="app-shell-bg flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="text-stone-500 dark:text-stone-400">Chargement…</p>
         </div>
       </div>
     }>

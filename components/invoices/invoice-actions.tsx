@@ -1,26 +1,26 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import Button from '@/components/ui/button'
-import DeleteButton from '@/components/invoices/delete-button'
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Button from "@/components/ui/button";
+import DeleteButton from "@/components/invoices/delete-button";
 
 interface InvoiceActionsProps {
-  invoiceId: string
-  invoiceReference: string
+  invoiceId: string;
+  invoiceReference: string;
 }
 
 export default function InvoiceActions({
   invoiceId,
   invoiceReference,
 }: InvoiceActionsProps) {
-  const router = useRouter()
+  const router = useRouter();
 
   return (
     <div className="flex gap-2">
       <Link href={`/invoices/${invoiceId}`}>
         <Button variant="ghost" size="sm">
-          View
+          Voir
         </Button>
       </Link>
       <Link href={`/api/invoices/${invoiceId}/pdf`} target="_blank">
@@ -34,10 +34,9 @@ export default function InvoiceActions({
         variant="ghost"
         size="sm"
         onDeleted={() => {
-          router.refresh()
+          router.refresh();
         }}
       />
     </div>
-  )
+  );
 }
-

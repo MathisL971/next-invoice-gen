@@ -62,7 +62,7 @@ export async function GET(
     return new NextResponse(pdfBuffer as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="invoice-${invoice.reference}.pdf"`,
+        'Content-Disposition': `attachment; filename="${invoice.document_type === 'quote' ? 'devis' : 'facture'}-${invoice.reference}.pdf"`,
       },
     })
   } catch (error: unknown) {

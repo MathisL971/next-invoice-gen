@@ -9,6 +9,7 @@ import Button from "@/components/ui/button";
 import { Table, TableRow, TableCell } from "@/components/ui/table";
 import { formatDate } from "@/lib/utils/format";
 import Modal from "@/components/ui/modal";
+import Panel from "@/components/ui/panel";
 
 interface Client {
   id: string;
@@ -60,11 +61,11 @@ export default function ClientList({
 
     if (error) {
       console.error("Error deleting client:", error);
-      toast.error("Failed to delete client", {
+      toast.error("Suppression impossible", {
         description: error.message,
       });
     } else {
-      toast.success("Client deleted successfully");
+      toast.success("Client supprimé");
       setClients(clients.filter((c) => c.id !== clientToDelete.id));
       setDeleteModalOpen(false);
       setClientToDelete(null);
@@ -78,22 +79,28 @@ export default function ClientList({
     <>
       <div className="mb-4">
         <Input
-          placeholder="Search clients..."
+          placeholder="Rechercher un client…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
       {filteredClients.length > 0 ? (
-        <div className="rounded-lg bg-white dark:bg-zinc-900 shadow">
+        <Panel accent padding={false}>
           <Table
-            headers={["Reference", "Name", "Address", "Created", "Actions"]}
+            headers={[
+              "Référence",
+              "Nom",
+              "Adresse",
+              "Créé le",
+              "Actions",
+            ]}
           >
             {filteredClients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell>{client.reference}</TableCell>
                 <TableCell className="font-medium">{client.name}</TableCell>
-                <TableCell>{client.address || "-"}</TableCell>
+                <TableCell>{client.address || "—"}</TableCell>
                 <TableCell>{formatDate(client.created_at)}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
@@ -102,7 +109,7 @@ export default function ClientList({
                       size="sm"
                       onClick={() => router.push(`/clients/${client.id}`)}
                     >
-                      View
+                      Voir
                     </Button>
                     <Button
                       variant="danger"
@@ -112,22 +119,22 @@ export default function ClientList({
                         setDeleteModalOpen(true);
                       }}
                     >
-                      Delete
+                      Supprimer
                     </Button>
                   </div>
                 </TableCell>
               </TableRow>
             ))}
           </Table>
-        </div>
+        </Panel>
       ) : (
-        <div className="rounded-lg bg-white dark:bg-zinc-900 p-12 text-center shadow">
-          <p className="text-gray-500 dark:text-gray-400">
+        <Panel className="text-center">
+          <p className="text-stone-500 dark:text-stone-400">
             {search
-              ? "No clients match your search."
-              : "No clients yet. Create your first client to get started."}
+              ? "Aucun client ne correspond à votre recherche."
+              : "Aucun client pour le moment. Ajoutez votre premier client pour commencer."}
           </p>
-        </div>
+        </Panel>
       )}
 
       <Modal
@@ -136,11 +143,12 @@ export default function ClientList({
           setDeleteModalOpen(false);
           setClientToDelete(null);
         }}
-        title="Delete Client"
+        title="Supprimer le client"
       >
         <p className="mb-4 text-gray-600 dark:text-gray-400">
-          Are you sure you want to delete {clientToDelete?.name}? This will also
-          delete all associated invoices. This action cannot be undone.
+          Voulez-vous vraiment supprimer {clientToDelete?.name} ? Toutes les
+          factures associées seront également supprimées. Cette action est
+          irréversible.
         </p>
         <div className="flex gap-2 justify-end">
           <Button
@@ -150,10 +158,10 @@ export default function ClientList({
               setClientToDelete(null);
             }}
           >
-            Cancel
+            Annuler
           </Button>
           <Button variant="danger" onClick={handleDelete} disabled={loading}>
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? "Suppression…" : "Supprimer"}
           </Button>
         </div>
       </Modal>

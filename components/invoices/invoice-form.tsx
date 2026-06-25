@@ -46,15 +46,19 @@ interface InvoiceFormProps {
   invoice?: Invoice;
   clients?: Client[];
   defaultCurrency?: string;
+  documentType?: "invoice" | "quote";
 }
 
 export default function InvoiceForm({
   invoice,
   clients = [],
   defaultCurrency = "EUR",
+  documentType = "invoice",
 }: InvoiceFormProps) {
   const router = useRouter();
   const supabase = createClient();
+  const isQuote = documentType === "quote";
+  const docLabel = isQuote ? "devis" : "facture";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [clientsList, setClientsList] = useState<Client[]>(clients);
@@ -156,22 +160,22 @@ export default function InvoiceForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setError("You must be logged in");
-      toast.error("You must be logged in");
+      setError("Vous devez être connecté");
+      toast.error("Vous devez être connecté");
       setLoading(false);
       return;
     }
 
     if (!formData.client_id) {
-      setError("Please select a client");
-      toast.error("Please select a client");
+      setError("Veuillez sélectionner un client");
+      toast.error("Veuillez sélectionner un client");
       setLoading(false);
       return;
     }
 
     if (invoice?.id && !formData.reference?.trim()) {
-      setError("Invoice reference is required");
-      toast.error("Invoice reference is required");
+      setError("La référence de facture est obligatoire");
+      toast.error("La référence de facture est obligatoire");
       setLoading(false);
       return;
     }
@@ -180,8 +184,8 @@ export default function InvoiceForm({
       items.length === 0 ||
       items.some((item) => !item.description || item.total_ht === 0)
     ) {
-      setError("Please add at least one valid line item");
-      toast.error("Please add at least one valid line item");
+      setError("Ajoutez au moins une ligne valide");
+      toast.error("Ajoutez au moins une ligne valide");
       setLoading(false);
       return;
     }
@@ -199,8 +203,8 @@ export default function InvoiceForm({
             .maybeSingle();
 
           if (existingInvoice) {
-            setError("An invoice with this reference already exists");
-            toast.error("An invoice with this reference already exists");
+            setError("Une facture avec cette référence existe déjà");
+            toast.error("Une facture avec cette référence existe déjà");
             setLoading(false);
             return;
           }
@@ -238,69 +242,75 @@ export default function InvoiceForm({
           .delete()
           .eq("invoice_id", invoice.id);
       } else {
-        // Create new invoice - use database function to generate reference
-        const { data: refData, error: refError } = await supabase.rpc(
-          "generate_invoice_reference",
-          { p_user_id: user.id }
-        );
-
-        if (refError) throw refError;
-
-        // Get client reference (use form value if provided, otherwise use client's reference)
+        // Create via API route (enforces quota server-side, atomic insert).
         const selectedClient = clientsList.find(
           (c) => c.id === formData.client_id
         );
         if (!selectedClient) {
-          throw new Error("Client not found");
+          throw new Error("Client introuvable");
         }
-
         const clientReference =
           formData.client_reference?.trim() || selectedClient.reference;
 
-        const { data: newInvoice, error: insertError } = await supabase
-          .from("invoices")
-          .insert({
-            user_id: user.id,
-            reference: refData,
+        const apiPath =
+          documentType === "quote" ? "/api/quotes" : "/api/invoices";
+        const res = await fetch(apiPath, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             client_id: formData.client_id,
             client_reference: clientReference,
             invoice_date: formData.invoice_date,
             due_date: formData.due_date,
             payment_method: formData.payment_method,
             currency: formData.currency,
-            status: "draft",
             vat_applicable: formData.vat_applicable,
             vat_article: formData.vat_article || null,
             notes: formData.notes || null,
-          })
-          .select()
-          .single();
+            items: items.map((item, index) => ({
+              description: item.description,
+              additional_info: item.additional_info || null,
+              unit_price_ht: item.unit_price_ht,
+              quantity: item.quantity,
+              total_ht: item.total_ht,
+              order_index: index,
+            })),
+          }),
+        });
 
-        if (insertError) throw insertError;
-
-        if (newInvoice) {
-          // Insert items
-          const itemsToInsert = items.map((item, index) => ({
-            invoice_id: newInvoice.id,
-            description: item.description,
-            additional_info: item.additional_info || null,
-            unit_price_ht: item.unit_price_ht,
-            quantity: item.quantity,
-            total_ht: item.total_ht,
-            order_index: index,
-          }));
-
-          const { error: itemsError } = await supabase
-            .from("invoice_items")
-            .insert(itemsToInsert);
-
-          if (itemsError) throw itemsError;
-
-          toast.success("Invoice created successfully");
-          router.push(`/invoices/${newInvoice.id}`);
-          router.refresh();
-          return;
+        if (res.status === 403) {
+          const data = await res.json().catch(() => ({}));
+          if (data?.error === "quota_exceeded") {
+            toast.error("Limite de la formule gratuite atteinte", {
+              description:
+                "Vous avez utilisé vos 3 factures ce mois-ci. Passez à Pro pour un accès illimité.",
+              action: {
+                label: "Passer à Pro",
+                onClick: () => router.push("/settings?tab=abonnement"),
+              },
+            });
+            setLoading(false);
+            return;
+          }
         }
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error ?? "Création impossible");
+        }
+
+        const { invoice: newInvoice, quote: newQuote } = await res.json();
+        const created = newInvoice ?? newQuote;
+        toast.success(
+          documentType === "quote" ? "Devis créé" : "Facture créée"
+        );
+        router.push(
+          documentType === "quote"
+            ? `/quotes/${created.id}`
+            : `/invoices/${created.id}`
+        );
+        router.refresh();
+        return;
       }
 
       // Update items for existing invoice
@@ -321,14 +331,16 @@ export default function InvoiceForm({
 
         if (itemsError) throw itemsError;
 
-        toast.success("Invoice updated successfully");
+        toast.success(
+          documentType === "quote" ? "Devis mis à jour" : "Facture mise à jour"
+        );
         router.refresh();
       }
     } catch (err: unknown) {
       const errorMessage =
-        err instanceof Error ? err.message : "An error occurred";
+        err instanceof Error ? err.message : "Une erreur est survenue";
       setError(errorMessage);
-      toast.error("Failed to save invoice", {
+      toast.error("Enregistrement impossible", {
         description: errorMessage,
       });
     } finally {
@@ -350,13 +362,13 @@ export default function InvoiceForm({
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {invoice?.id && (
           <Input
-            label="Invoice Reference"
+            label={`Référence ${docLabel}`}
             required
             value={formData.reference || ""}
             onChange={(e) =>
               setFormData({ ...formData, reference: e.target.value })
             }
-            placeholder="e.g., F-000067"
+            placeholder={isQuote ? "ex. D-000001" : "ex. F-000067"}
           />
         )}
 
@@ -377,7 +389,7 @@ export default function InvoiceForm({
             });
           }}
           options={[
-            { value: "", label: "Select a client" },
+            { value: "", label: "Sélectionnez un client" },
             ...clientsList.map((client) => ({
               value: client.id,
               label: `${client.name} (${client.reference})`,
@@ -386,16 +398,16 @@ export default function InvoiceForm({
         />
 
         <Input
-          label="Client Reference"
+          label="Référence client"
           value={formData.client_reference || ""}
           onChange={(e) =>
             setFormData({ ...formData, client_reference: e.target.value })
           }
-          placeholder="e.g., C-000001"
+          placeholder="ex. C-000001"
         />
 
         <Input
-          label="Invoice Date"
+          label={isQuote ? "Date du devis" : "Date de facturation"}
           type="date"
           required
           value={formData.invoice_date}
@@ -405,7 +417,7 @@ export default function InvoiceForm({
         />
 
         <Input
-          label="Due Date"
+          label={isQuote ? "Valable jusqu'au" : "Date d'échéance"}
           type="date"
           required
           value={formData.due_date}
@@ -415,7 +427,7 @@ export default function InvoiceForm({
         />
 
         <Select
-          label="Payment Method"
+          label="Mode de paiement"
           value={formData.payment_method}
           onChange={(e) =>
             setFormData({ ...formData, payment_method: e.target.value })
@@ -429,7 +441,7 @@ export default function InvoiceForm({
         />
 
         <Select
-          label="Currency"
+          label="Devise"
           value={formData.currency || "EUR"}
           onChange={(e) =>
             setFormData({ ...formData, currency: e.target.value })
@@ -444,10 +456,10 @@ export default function InvoiceForm({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Line Items
+            Lignes de facturation
           </h3>
           <Button type="button" variant="secondary" onClick={addItem}>
-            Add Item
+            Ajouter une ligne
           </Button>
         </div>
 
@@ -466,21 +478,21 @@ export default function InvoiceForm({
                     onChange={(e) =>
                       updateItem(index, "description", e.target.value)
                     }
-                    placeholder="e.g., January 2024 or Project milestone"
+                    placeholder="ex. Janvier 2024 ou jalon de projet"
                   />
                   <Input
-                    label="Additional Information"
+                    label="Informations complémentaires"
                     value={item.additional_info || ""}
                     onChange={(e) =>
                       updateItem(index, "additional_info", e.target.value)
                     }
-                    placeholder="Optional: dates, details, etc."
+                    placeholder="Optionnel : dates, détails, etc."
                   />
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
                   <div className="md:col-span-4">
                     <Input
-                      label="Price"
+                      label="Prix HT"
                       type="number"
                       step="0.01"
                       required
@@ -496,7 +508,7 @@ export default function InvoiceForm({
                   </div>
                   <div className="md:col-span-4">
                     <Input
-                      label="Qty"
+                      label="Qté"
                       type="number"
                       step="0.01"
                       required
@@ -530,7 +542,7 @@ export default function InvoiceForm({
                     size="sm"
                     onClick={() => removeItem(index)}
                   >
-                    Remove
+                    Supprimer
                   </Button>
                 </div>
               )}
@@ -549,23 +561,23 @@ export default function InvoiceForm({
               onChange={(e) =>
                 setFormData({ ...formData, vat_applicable: e.target.checked })
               }
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-stone-300 text-teal-700 focus:ring-teal-600 dark:border-stone-600"
             />
             <label
               htmlFor="vat_applicable"
               className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              VAT Applicable
+              TVA applicable
             </label>
           </div>
           {formData.vat_applicable && (
             <Input
-              label="VAT Article"
+              label="Article TVA"
               value={formData.vat_article || ""}
               onChange={(e) =>
                 setFormData({ ...formData, vat_article: e.target.value })
               }
-              placeholder="e.g., 293 B du Code Général des Impôts"
+              placeholder="ex. 293 B du Code général des impôts"
             />
           )}
         </div>
@@ -607,18 +619,22 @@ export default function InvoiceForm({
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>
           {loading
-            ? "Saving..."
+            ? "Enregistrement…"
             : invoice
-            ? "Update Invoice"
-            : "Create Invoice"}
+              ? `Mettre à jour le ${docLabel}`
+              : `Créer le ${docLabel}`}
         </Button>
         {invoice && (
           <Button
             type="button"
             variant="secondary"
-            onClick={() => router.push(`/invoices/${invoice.id}`)}
+            onClick={() =>
+              router.push(
+                isQuote ? `/quotes/${invoice.id}` : `/invoices/${invoice.id}`
+              )
+            }
           >
-            Cancel
+            Annuler
           </Button>
         )}
       </div>

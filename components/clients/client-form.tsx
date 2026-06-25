@@ -49,21 +49,20 @@ export default function ClientForm({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      setError("You must be logged in");
-      toast.error("You must be logged in");
+      setError("Vous devez être connecté");
+      toast.error("Vous devez être connecté");
       setLoading(false);
       return;
     }
 
     if (client?.id) {
       if (!formData.reference.trim()) {
-        setError("Reference cannot be empty");
-        toast.error("Reference cannot be empty");
+        setError("La référence ne peut pas être vide");
+        toast.error("La référence ne peut pas être vide");
         setLoading(false);
         return;
       }
 
-      // Update existing client
       const { error: updateError } = await supabase
         .from("clients")
         .update({
@@ -77,51 +76,48 @@ export default function ClientForm({
 
       if (updateError) {
         setError(updateError.message);
-        toast.error("Failed to update client", {
+        toast.error("Mise à jour impossible", {
           description: updateError.message,
         });
         setLoading(false);
       } else {
-        toast.success("Client updated successfully");
+        toast.success("Client mis à jour");
         router.refresh();
       }
     } else {
-      // Create new client
-      let reference = formData.reference;
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reference: formData.reference || null,
+          name: formData.name,
+          address: formData.address || null,
+        }),
+      });
 
-      if (!reference) {
-        // Generate reference if not provided
-        const { data: refData, error: refError } = await supabase.rpc(
-          "generate_client_reference",
-          { p_user_id: user.id }
-        );
-
-        if (refError) {
-          setError(refError.message);
-          toast.error("Failed to generate client reference", {
-            description: refError.message,
+      if (res.status === 403) {
+        const data = await res.json().catch(() => ({}));
+        if (data?.error === "quota_exceeded") {
+          toast.error("Limite de la formule gratuite atteinte", {
+            description: "Passez à Pro pour ajouter plus de clients.",
+            action: {
+              label: "Passer à Pro",
+              onClick: () => router.push("/settings?tab=abonnement"),
+            },
           });
           setLoading(false);
           return;
         }
-        reference = refData;
       }
 
-      const { error: insertError } = await supabase.from("clients").insert({
-        user_id: user.id,
-        reference: reference,
-        name: formData.name,
-        address: formData.address || null,
-      });
-
-      if (insertError) {
-        setError(insertError.message);
-        toast.error("Failed to create client", {
-          description: insertError.message,
-        });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        const msg = data?.error ?? "Création impossible";
+        setError(msg);
+        toast.error("Création impossible", { description: msg });
         setLoading(false);
       } else {
-        toast.success("Client created successfully");
+        toast.success("Client créé");
         router.push("/clients");
         router.refresh();
       }
@@ -139,30 +135,34 @@ export default function ClientForm({
       )}
 
       <Input
-        label="Reference"
+        label="Référence"
         onChange={(e) =>
           setFormData({ ...formData, reference: e.target.value })
         }
         value={formData.reference}
-        placeholder="Auto-generated if left empty"
+        placeholder="Générée automatiquement si vide"
       />
 
       <Input
-        label="Name"
+        label="Nom"
         required
         value={formData.name}
         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
       />
 
       <Input
-        label="Address"
+        label="Adresse"
         value={formData.address}
         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
       />
 
       <div className="flex gap-2">
         <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : client ? "Update Client" : "Create Client"}
+          {loading
+            ? "Enregistrement…"
+            : client
+              ? "Mettre à jour"
+              : "Créer le client"}
         </Button>
         {client && (
           <Button
@@ -170,7 +170,7 @@ export default function ClientForm({
             variant="secondary"
             onClick={() => router.push("/clients")}
           >
-            Cancel
+            Annuler
           </Button>
         )}
       </div>

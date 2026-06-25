@@ -3,8 +3,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Button from '@/components/ui/button'
 import Card from '@/components/ui/card'
-import { formatDate } from '@/lib/utils/format'
+import { formatDate } from "@/lib/utils/format";
+import { getInvoiceStatusLabel } from "@/lib/utils/labels";
 import ClientForm from '@/components/clients/client-form'
+import PageHeader from '@/components/layout/page-header'
 
 export default async function ClientDetailPage({
   params,
@@ -41,40 +43,36 @@ export default async function ClientDetailPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            {client.name}
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Reference: {client.reference}
-          </p>
-        </div>
-        <Link href="/clients">
-          <Button variant="secondary">Back to Clients</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title={client.name}
+        description={`Référence : ${client.reference}`}
+        actions={
+          <Link href="/clients">
+            <Button variant="secondary">Retour aux clients</Button>
+          </Link>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Card title="Client Information">
+        <Card title="Informations client">
           <ClientForm client={client} />
         </Card>
 
         {invoices && invoices.length > 0 && (
-          <Card title="Invoices">
+          <Card title="Factures">
             <div className="space-y-2">
               {invoices.map((invoice: { id: string; reference: string; invoice_date: string; status: string; due_date: string }) => (
                 <Link
                   key={invoice.id}
                   href={`/invoices/${invoice.id}`}
-                  className="block rounded-md border border-gray-200 dark:border-gray-700 p-4 hover:bg-gray-50 dark:hover:bg-zinc-800"
+                  className="block rounded-lg border border-teal-900/10 p-4 transition-colors hover:bg-teal-50/50 dark:border-stone-700 dark:hover:bg-stone-800/50"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <p className="font-medium text-[#1a454f] dark:text-teal-50">
                         {invoice.reference}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-sm text-stone-500 dark:text-stone-400">
                         {formatDate(invoice.invoice_date)}
                       </p>
                     </div>
@@ -87,7 +85,7 @@ export default async function ClientDetailPage({
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200'
                       }`}
                     >
-                      {invoice.status}
+                      {getInvoiceStatusLabel(invoice.status)}
                     </span>
                   </div>
                 </Link>

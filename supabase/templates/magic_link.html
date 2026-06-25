@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Your Verification Code</title>
+    <title>Votre code de connexion — Alizé</title>
     <!--[if mso]>
       <style type="text/css">
         body,
         table,
         td {
-          font-family: Arial, sans-serif !important;
+          font-family: Arial, Helvetica, sans-serif !important;
         }
       </style>
     <![endif]-->
@@ -19,8 +19,9 @@
     style="
       margin: 0;
       padding: 0;
-      background-color: #fafafa;
-      font-family: Arial, Helvetica, sans-serif;
+      background-color: #faf6f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        Helvetica, Arial, sans-serif;
     "
   >
     <table
@@ -29,73 +30,50 @@
       cellpadding="0"
       border="0"
       width="100%"
-      style="background-color: #fafafa"
+      style="background-color: #faf6f0"
     >
       <tr>
-        <td align="center" style="padding: 40px 20px">
-          <!-- Main Container -->
+        <td align="center" style="padding: 48px 20px">
           <table
             role="presentation"
             cellspacing="0"
             cellpadding="0"
             border="0"
-            width="600"
+            width="520"
             style="
-              max-width: 600px;
+              max-width: 520px;
+              width: 100%;
               background-color: #ffffff;
-              border-radius: 8px;
-              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-              border: 1px solid #e4e4e7;
+              border-radius: 16px;
+              box-shadow: 0 20px 40px rgba(26, 69, 79, 0.08);
+              border: 1px solid rgba(26, 69, 79, 0.08);
+              overflow: hidden;
             "
           >
-            <!-- Header -->
+            <!-- Accent bar -->
             <tr>
               <td
+                height="6"
                 style="
-                  padding: 32px 40px 24px;
-                  border-bottom: 1px solid #e4e4e7;
+                  height: 6px;
+                  line-height: 6px;
+                  font-size: 0;
+                  background-color: #1e4d58;
+                  background-image: linear-gradient(
+                    to right,
+                    #d4846a 0%,
+                    #0d9488 50%,
+                    #1a454f 100%
+                  );
                 "
               >
-                <h1
-                  style="
-                    margin: 0;
-                    color: #171717;
-                    font-size: 24px;
-                    font-weight: 600;
-                    letter-spacing: -0.5px;
-                  "
-                >
-                  Invoice Manager
-                </h1>
+                &nbsp;
               </td>
             </tr>
 
-            <!-- Content -->
+            <!-- Header -->
             <tr>
-              <td style="padding: 40px 40px 30px">
-                <p
-                  style="
-                    margin: 0 0 10px;
-                    color: #171717;
-                    font-size: 16px;
-                    line-height: 1.6;
-                  "
-                >
-                  {{ if .Email }}Hello {{ .Email }},{{ else }}Hello,{{ end }}
-                </p>
-                <p
-                  style="
-                    margin: 0 0 30px;
-                    color: #171717;
-                    font-size: 16px;
-                    line-height: 1.6;
-                  "
-                >
-                  Use the verification code below to sign in to your account.
-                  This code will expire in 1 hour for your security.
-                </p>
-
-                <!-- OTP Code Display -->
+              <td style="padding: 32px 36px 0">
                 <table
                   role="presentation"
                   cellspacing="0"
@@ -104,7 +82,115 @@
                   width="100%"
                 >
                   <tr>
-                    <td align="center" style="padding: 0 0 30px">
+                    <td>
+                      <p
+                        style="
+                          margin: 0 0 10px;
+                          display: inline-block;
+                          padding: 4px 12px;
+                          border: 1px solid rgba(26, 69, 79, 0.1);
+                          border-radius: 999px;
+                          background-color: rgba(255, 255, 255, 0.8);
+                          color: rgba(26, 69, 79, 0.85);
+                          font-size: 11px;
+                          font-weight: 600;
+                          letter-spacing: 0.14em;
+                          text-transform: uppercase;
+                        "
+                      >
+                        <span
+                          style="
+                            display: inline-block;
+                            width: 6px;
+                            height: 6px;
+                            margin-right: 6px;
+                            border-radius: 999px;
+                            background-color: #d4846a;
+                            vertical-align: middle;
+                          "
+                        ></span
+                        >Saint-Barthélemy
+                      </p>
+                      <h1
+                        style="
+                          margin: 0;
+                          color: #1a454f;
+                          font-size: 28px;
+                          font-weight: 600;
+                          letter-spacing: -0.03em;
+                          line-height: 1.15;
+                        "
+                      >
+                        Alizé
+                      </h1>
+                      <p
+                        style="
+                          margin: 6px 0 0;
+                          color: rgba(30, 77, 88, 0.75);
+                          font-size: 14px;
+                          font-weight: 500;
+                          line-height: 1.4;
+                        "
+                      >
+                        Micro-entreprise · CPS
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Content -->
+            <tr>
+              <td style="padding: 28px 36px 32px">
+                <p
+                  style="
+                    margin: 0 0 8px;
+                    color: rgba(30, 77, 88, 0.55);
+                    font-size: 11px;
+                    font-weight: 600;
+                    letter-spacing: 0.22em;
+                    text-transform: uppercase;
+                  "
+                >
+                  Connexion sécurisée
+                </p>
+                <p
+                  style="
+                    margin: 0 0 12px;
+                    color: #1a454f;
+                    font-size: 22px;
+                    font-weight: 600;
+                    letter-spacing: -0.02em;
+                    line-height: 1.25;
+                  "
+                >
+                  Votre code de vérification
+                </p>
+                <p
+                  style="
+                    margin: 0 0 28px;
+                    color: #78716c;
+                    font-size: 15px;
+                    line-height: 1.6;
+                  "
+                >
+                  {{ if .Email }}Bonjour {{ .Email }},{{ else }}Bonjour,{{ end
+                  }}
+                  saisissez le code ci-dessous pour accéder à votre espace
+                  micro-entreprise. Il expire dans 1&nbsp;heure.
+                </p>
+
+                <!-- OTP Code -->
+                <table
+                  role="presentation"
+                  cellspacing="0"
+                  cellpadding="0"
+                  border="0"
+                  width="100%"
+                >
+                  <tr>
+                    <td align="center" style="padding: 0 0 24px">
                       <table
                         role="presentation"
                         cellspacing="0"
@@ -112,25 +198,26 @@
                         border="0"
                         style="
                           margin: 0 auto;
-                          background-color: #fafafa;
-                          border: 2px solid #e4e4e7;
-                          border-radius: 8px;
+                          background-color: rgba(250, 250, 249, 0.8);
+                          border: 1px solid rgba(120, 113, 108, 0.2);
+                          border-radius: 12px;
                         "
                       >
                         <tr>
                           <td
                             align="center"
                             style="
-                              padding: 24px 32px;
-                              font-family: 'Courier New', monospace;
+                              padding: 20px 28px;
+                              font-family: 'SF Mono', 'Courier New', Courier,
+                                monospace;
                             "
                           >
                             <span
                               style="
-                                color: #171717;
-                                font-size: 32px;
+                                color: #1a454f;
+                                font-size: 34px;
                                 font-weight: 700;
-                                letter-spacing: 8px;
+                                letter-spacing: 0.4em;
                                 line-height: 1.2;
                               "
                             >
@@ -143,21 +230,19 @@
                   </tr>
                 </table>
 
-                <!-- Instructions -->
                 <p
                   style="
-                    margin: 0 0 30px;
-                    color: #71717a;
-                    font-size: 14px;
+                    margin: 0 0 28px;
+                    color: #78716c;
+                    font-size: 13px;
                     line-height: 1.6;
                     text-align: center;
                   "
                 >
-                  Enter this code on the sign-in page to complete your
-                  authentication.
+                  Entrez ce code sur la page de connexion pour continuer.
                 </p>
 
-                <!-- Security Notice -->
+                <!-- Security notice -->
                 <table
                   role="presentation"
                   cellspacing="0"
@@ -165,25 +250,26 @@
                   border="0"
                   width="100%"
                   style="
-                    background-color: #fafafa;
-                    border-radius: 6px;
-                    border-left: 4px solid #2563eb;
+                    background-color: rgba(240, 253, 250, 0.8);
+                    border-radius: 10px;
+                    border: 1px solid rgba(13, 148, 136, 0.12);
+                    border-left: 4px solid #0d9488;
                   "
                 >
                   <tr>
-                    <td style="padding: 16px 20px">
+                    <td style="padding: 14px 18px">
                       <p
                         style="
                           margin: 0;
-                          color: #71717a;
+                          color: #78716c;
                           font-size: 13px;
-                          line-height: 1.5;
+                          line-height: 1.55;
                         "
                       >
-                        <strong style="color: #171717">🔒 Security Tip:</strong>
-                        Never share this code with anyone. If you didn't request
-                        this verification code, you can safely ignore this
-                        email. Your account remains secure.
+                        <strong style="color: #1a454f">Sécurité&nbsp;:</strong>
+                        ne partagez jamais ce code. Si vous n&apos;avez pas
+                        demandé cette connexion, ignorez cet email — votre
+                        compte reste protégé.
                       </p>
                     </td>
                   </tr>
@@ -195,28 +281,26 @@
             <tr>
               <td
                 style="
-                  padding: 24px 40px;
-                  background-color: #fafafa;
-                  border-radius: 0 0 8px 8px;
-                  border-top: 1px solid #e4e4e7;
+                  padding: 20px 36px 28px;
+                  background-color: rgba(250, 246, 240, 0.65);
+                  border-top: 1px solid rgba(26, 69, 79, 0.08);
                 "
               >
                 <p
                   style="
-                    margin: 0 0 10px;
-                    color: #a1a1aa;
+                    margin: 0 0 8px;
+                    color: #a8a29e;
                     font-size: 12px;
                     text-align: center;
                     line-height: 1.5;
                   "
                 >
-                  This is an automated message, please do not reply to this
-                  email.
+                  Message automatique — merci de ne pas répondre.
                 </p>
                 <p
                   style="
                     margin: 0;
-                    color: #a1a1aa;
+                    color: #a8a29e;
                     font-size: 12px;
                     text-align: center;
                     line-height: 1.5;
@@ -224,21 +308,21 @@
                 >
                   {{ if .SiteURL }}<a
                     href="{{ .SiteURL }}"
-                    style="color: #a1a1aa; text-decoration: none"
+                    style="color: #78716c; text-decoration: none"
                     >{{ .SiteURL }}</a
-                  ><br />{{ end }} © 2024 Invoice Manager. All rights reserved.
+                  ><br />{{ end }}© 2026 Alizé. Tous droits réservés.
                 </p>
                 {{ if .Email }}
                 <p
                   style="
                     margin: 10px 0 0;
-                    color: #a1a1aa;
+                    color: #a8a29e;
                     font-size: 11px;
                     text-align: center;
                     line-height: 1.5;
                   "
                 >
-                  This email was sent to {{ .Email }}
+                  Envoyé à {{ .Email }}
                 </p>
                 {{ end }}
               </td>

@@ -2,9 +2,12 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Button from "@/components/ui/button";
+import PageHeader from "@/components/layout/page-header";
+import Panel from "@/components/ui/panel";
 import { Table, TableRow, TableCell } from "@/components/ui/table";
 import InvoiceActions from "@/components/invoices/invoice-actions";
 import { formatDate, formatCurrency } from "@/lib/utils/format";
+import { getInvoiceStatusLabel } from "@/lib/utils/labels";
 
 export default async function InvoicesPage({
   searchParams,
@@ -26,6 +29,7 @@ export default async function InvoicesPage({
       "id, reference, invoice_date, due_date, status, currency, client_id, clients(name)"
     )
     .eq("user_id", user.id)
+    .eq("document_type", "invoice")
     .order("created_at", { ascending: false });
 
   if (searchParams.status) {
@@ -59,38 +63,34 @@ export default async function InvoicesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Invoices
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Manage your invoices and track payments
-          </p>
-        </div>
-        <Link href="/invoices/new">
-          <Button>Create Invoice</Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Factures"
+        description="Gérez vos factures et suivez les paiements"
+        actions={
+          <Link href="/invoices/new">
+            <Button>Nouvelle facture</Button>
+          </Link>
+        }
+      />
 
       {error && (
-        <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
+        <Panel className="border-red-200/50 bg-red-50/80 dark:border-red-900/30 dark:bg-red-950/30">
           <p className="text-sm text-red-800 dark:text-red-200">
-            Error loading invoices: {error.message}
+            Erreur lors du chargement des factures : {error.message}
           </p>
-        </div>
+        </Panel>
       )}
 
       {invoices && invoices.length > 0 ? (
-        <div className="rounded-lg bg-white dark:bg-zinc-900 shadow">
+        <Panel accent padding={false}>
           <Table
             headers={[
-              "Reference",
+              "Référence",
               "Client",
               "Date",
-              "Due Date",
-              "Amount",
-              "Status",
+              "Échéance",
+              "Montant",
+              "Statut",
               "Actions",
             ]}
           >
@@ -113,7 +113,7 @@ export default async function InvoicesPage({
                     <TableCell className="font-medium">
                       {invoice.reference}
                     </TableCell>
-                    <TableCell>{clientName || "Unknown"}</TableCell>
+                    <TableCell>{clientName || "Inconnu"}</TableCell>
                     <TableCell>{formatDate(invoice.invoice_date)}</TableCell>
                     <TableCell>{formatDate(invoice.due_date)}</TableCell>
                     <TableCell>
@@ -130,11 +130,11 @@ export default async function InvoicesPage({
                             : invoice.status === "overdue"
                             ? "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-200"
                             : invoice.status === "sent"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200"
-                            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
+                            ? "bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-200"
+                            : "bg-stone-100 text-stone-800 dark:bg-stone-800 dark:text-stone-200"
                         }`}
                       >
-                        {invoice.status}
+                        {getInvoiceStatusLabel(invoice.status)}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -148,13 +148,14 @@ export default async function InvoicesPage({
               }
             )}
           </Table>
-        </div>
+        </Panel>
       ) : (
-        <div className="rounded-lg bg-white dark:bg-zinc-900 p-12 text-center shadow">
-          <p className="text-gray-500 dark:text-gray-400">
-            No invoices yet. Create your first invoice to get started.
+        <Panel className="text-center">
+          <p className="text-stone-500 dark:text-stone-400">
+            Aucune facture pour le moment. Créez votre première facture pour
+            commencer.
           </p>
-        </div>
+        </Panel>
       )}
     </div>
   );

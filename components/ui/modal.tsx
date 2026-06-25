@@ -28,24 +28,25 @@ export default function Modal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className={`w-full ${sizes[size]} rounded-lg bg-white dark:bg-zinc-900 shadow-xl`}
+        className={`w-full ${sizes[size]} overflow-hidden rounded-xl border border-white/80 bg-white/95 shadow-2xl shadow-teal-900/10 ring-1 ring-teal-900/5 dark:border-stone-700 dark:bg-stone-900/95 dark:ring-teal-500/10`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="h-0.5 bg-gradient-to-r from-[#d4846a]/80 via-teal-600/80 to-[#1a454f]/80" />
         {title && (
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="flex items-center justify-between border-b border-teal-900/5 px-6 py-4 dark:border-teal-500/10">
+            <h3 className="text-lg font-semibold text-[#1a454f] dark:text-teal-50">
               {title}
             </h3>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              className="rounded-lg p-1 text-stone-400 transition-colors hover:bg-teal-50/80 hover:text-teal-900 dark:hover:bg-stone-800 dark:hover:text-teal-100"
             >
               <svg
-                className="h-6 w-6"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -71,4 +72,3 @@ export default function Modal({
 
   return null
 }
-

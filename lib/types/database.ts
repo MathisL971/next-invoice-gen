@@ -1,3 +1,44 @@
+export type ActivityType =
+  | "vente_bic"
+  | "prestations_bic"
+  | "prestations_bnc"
+  | "location_meublee";
+
+export type DeclarationFrequency = "monthly" | "quarterly";
+
+export type Plan = "free" | "pro";
+
+export type SubscriptionStatus =
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "canceled"
+  | "incomplete"
+  | "incomplete_expired"
+  | "unpaid"
+  | "paused";
+
+export interface Subscription {
+  user_id: string;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  stripe_price_id?: string | null;
+  plan: Plan;
+  status: SubscriptionStatus;
+  current_period_end?: string | null;
+  cancel_at_period_end: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FiscalSettings {
+  activity_start_date?: string;
+  activity_type?: ActivityType;
+  declaration_frequency?: DeclarationFrequency;
+  versement_liberatoire?: boolean;
+  employee_count?: number;
+}
+
 export interface Profile {
   id: string;
   company_name?: string;
@@ -20,7 +61,33 @@ export interface Profile {
     service_type?: string;
     late_payment_notice?: string;
   };
+  fiscal_settings?: FiscalSettings;
   default_currency?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CotisationReserve {
+  id: string;
+  user_id: string;
+  period_key: string;
+  amount_set_aside: number;
+  amount_paid: number;
+  declared_at?: string | null;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AnnualObligation {
+  id: string;
+  user_id: string;
+  year: number;
+  obligation_type: "cfae" | "ted";
+  amount_due: number;
+  amount_paid: number;
+  paid_at?: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +113,10 @@ export interface Invoice {
   due_date: string;
   payment_method: string;
   currency?: string;
-  status: "draft" | "sent" | "paid" | "overdue";
+  status: "draft" | "sent" | "paid" | "overdue" | "accepted" | "declined";
+  document_type?: "invoice" | "quote";
+  converted_to_invoice_id?: string | null;
+  source_quote_id?: string | null;
   vat_applicable: boolean;
   vat_article?: string;
   notes?: string;

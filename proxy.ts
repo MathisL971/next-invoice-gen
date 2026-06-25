@@ -39,14 +39,22 @@ export async function proxy(request: NextRequest) {
   const protectedPaths = [
     "/dashboard",
     "/invoices",
+    "/quotes",
     "/clients",
+    "/cotisations",
     "/settings",
     "/templates",
+    "/onboarding",
   ];
 
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
+
+  // Stripe webhooks authenticate via signature, not user session.
+  if (request.nextUrl.pathname.startsWith("/api/stripe/webhook")) {
+    return supabaseResponse;
+  }
 
   // Protect routes - require authentication
   if (isProtectedPath && !user) {

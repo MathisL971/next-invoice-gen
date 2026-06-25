@@ -1,5 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
+import { canCreateInvoice } from '@/lib/billing/entitlements'
 import { NextResponse } from 'next/server'
+
+function quotaError() {
+  return NextResponse.json(
+    { error: 'quota_exceeded', resource: 'invoices', plan: 'free' },
+    { status: 403 }
+  )
+}
 
 export async function POST(
   request: Request,
@@ -14,6 +22,10 @@ export async function POST(
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!(await canCreateInvoice())) {
+      return quotaError()
     }
 
     // Get original invoice
@@ -70,6 +82,9 @@ export async function POST(
       .single()
 
     if (createError || !newInvoice) {
+      if (createError?.message.includes('quota_exceeded_invoices')) {
+        return quotaError()
+      }
       return NextResponse.json({ error: 'Failed to create duplicate' }, { status: 500 })
     }
 

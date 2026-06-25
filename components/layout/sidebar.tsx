@@ -5,10 +5,26 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Invoices", href: "/invoices", icon: "📄" },
+  { name: "Tableau de bord", href: "/dashboard", icon: "📊" },
+  { name: "Factures", href: "/invoices", icon: "📄" },
+  { name: "Devis", href: "/quotes", icon: "📝" },
   { name: "Clients", href: "/clients", icon: "👥" },
-  { name: "Settings", href: "/settings", icon: "⚙️" },
+  { name: "Cotisations", href: "/cotisations", icon: "🏦" },
+  { name: "Paramètres", href: "/settings", icon: "⚙️" },
 ];
+
+function isNavItemActive(pathname: string, href: string) {
+  if (pathname === href) return true;
+  if (href === "/dashboard" || !pathname.startsWith(`${href}/`)) return false;
+
+  // Don't highlight a parent route when a more specific nav item matches.
+  return !navigation.some(
+    (item) =>
+      item.href !== href &&
+      item.href.startsWith(`${href}/`) &&
+      (pathname === item.href || pathname.startsWith(`${item.href}/`))
+  );
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -16,13 +32,13 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile menu button */}
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white dark:bg-zinc-900 border border-gray-200 dark:border-gray-700"
+        className="fixed left-4 top-4 z-50 rounded-lg border border-teal-900/10 bg-white/90 p-2 shadow-sm backdrop-blur-sm dark:border-teal-500/20 dark:bg-stone-900/90 lg:hidden"
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label={mobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
       >
         <svg
-          className="h-6 w-6 text-gray-600 dark:text-gray-300"
+          className="h-6 w-6 text-teal-900 dark:text-teal-200"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -45,29 +61,44 @@ export default function Sidebar() {
         </svg>
       </button>
 
-      {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-64 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-900 transform ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform border-r border-teal-900/8 bg-white/85 backdrop-blur-md transition-transform duration-200 ease-in-out dark:border-teal-500/10 dark:bg-stone-950/90 lg:static ${
           mobileMenuOpen
             ? "translate-x-0"
             : "-translate-x-full lg:translate-x-0"
-        } transition-transform duration-200 ease-in-out`}
+        }`}
       >
-        <nav className="p-4 space-y-1 mt-16 lg:mt-0">
+        <div className="hidden border-b border-teal-900/8 px-5 py-5 dark:border-teal-500/10 lg:block">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-700 to-teal-900 text-sm font-semibold text-white shadow-sm">
+              A
+            </div>
+            <div>
+              <p className="text-sm font-semibold leading-tight text-[#1a454f] dark:text-teal-50">
+                Alizé
+              </p>
+              <p className="text-[10px] text-teal-800/70 dark:text-teal-400/80">
+                Micro-entreprise · Saint-Barth
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <nav className="mt-16 space-y-1 p-3 lg:mt-0 lg:p-4">
           {navigation.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive = isNavItemActive(pathname, item.href);
             return (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800"
+                    ? "bg-teal-800 text-white shadow-sm shadow-teal-900/20 dark:bg-teal-700"
+                    : "text-stone-600 hover:bg-teal-50/80 hover:text-teal-900 dark:text-stone-400 dark:hover:bg-stone-800/60 dark:hover:text-teal-100"
                 }`}
               >
-                <span className="text-lg">{item.icon}</span>
+                <span className="text-base">{item.icon}</span>
                 <span>{item.name}</span>
               </Link>
             );
@@ -75,10 +106,9 @@ export default function Sidebar() {
         </nav>
       </aside>
 
-      {/* Overlay for mobile */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          className="fixed inset-0 z-30 bg-stone-900/40 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
