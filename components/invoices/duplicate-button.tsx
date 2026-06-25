@@ -27,7 +27,7 @@ export default function DuplicateButton({ invoiceId }: DuplicateButtonProps) {
             description: "Passez à Pro pour créer plus de factures ce mois-ci.",
             action: {
               label: "Passer à Pro",
-              onClick: () => router.push("/settings?tab=abonnement"),
+              onClick: () => router.push("/settings/billing"),
             },
           });
           return;

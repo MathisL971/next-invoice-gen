@@ -102,7 +102,7 @@ export default function ClientForm({
             description: "Passez à Pro pour ajouter plus de clients.",
             action: {
               label: "Passer à Pro",
-              onClick: () => router.push("/settings?tab=abonnement"),
+              onClick: () => router.push("/settings/billing"),
             },
           });
           setLoading(false);

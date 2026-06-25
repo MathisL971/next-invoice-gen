@@ -9,7 +9,6 @@ export const SETTINGS_TABS = [
   { id: "banque", label: "Banque" },
   { id: "legal", label: "Légal" },
   { id: "fiscal", label: "Fiscal" },
-  { id: "abonnement", label: "Abonnement" },
 ] as const;
 
 export type SettingsTabId = (typeof SETTINGS_TABS)[number]["id"];
@@ -20,7 +19,6 @@ interface SettingsTabsProps {
   banque: ReactNode;
   legal: ReactNode;
   fiscal: ReactNode;
-  abonnement: ReactNode;
 }
 
 function isValidTab(tab: string | null): tab is SettingsTabId {
@@ -33,7 +31,6 @@ export default function SettingsTabs({
   banque,
   legal,
   fiscal,
-  abonnement,
 }: SettingsTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -53,9 +50,7 @@ export default function SettingsTabs({
       } else {
         params.set("tab", tabId);
       }
-      if (tabId !== "abonnement") {
-        params.delete("status");
-      }
+      params.delete("status");
       const query = params.toString();
       router.replace(query ? `/settings?${query}` : "/settings", {
         scroll: false,
@@ -79,9 +74,6 @@ export default function SettingsTabs({
       </TabPanel>
       <TabPanel id="fiscal" activeTab={activeTab}>
         {fiscal}
-      </TabPanel>
-      <TabPanel id="abonnement" activeTab={activeTab}>
-        {abonnement}
       </TabPanel>
     </div>
   );

@@ -1,24 +1,18 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import {
-  getCurrentPlan,
-  getUsage,
-} from "@/lib/billing/entitlements";
-import CheckoutStatus from "@/components/billing/checkout-status";
 import PageHeader from "@/components/layout/page-header";
 import SettingsTabs from "@/components/settings/settings-tabs";
 import CompanyForm from "@/components/settings/company-form";
 import BankingForm from "@/components/settings/banking-form";
 import LegalForm from "@/components/settings/legal-form";
 import FiscalForm from "@/components/settings/fiscal-form";
-import BillingTabContent from "@/components/settings/billing-tab-content";
 import type { Profile } from "@/components/settings/profile-types";
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; status?: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -29,11 +23,7 @@ export default async function SettingsPage({
     redirect("/login");
   }
 
-  const [{ tab, status }, plan, usage] = await Promise.all([
-    searchParams,
-    getCurrentPlan(),
-    getUsage(),
-  ]);
+  const { tab } = await searchParams;
 
   let { data: profile } = await supabase
     .from("profiles")
@@ -67,11 +57,9 @@ export default async function SettingsPage({
 
   return (
     <div className="space-y-6">
-      <CheckoutStatus status={status} />
-
       <PageHeader
         title="Paramètres"
-        description="Gérez les informations de votre entreprise, votre fiscalité et votre abonnement."
+        description="Gérez les informations de votre entreprise et votre fiscalité."
       />
 
       <Suspense
@@ -85,7 +73,6 @@ export default async function SettingsPage({
           banque={<BankingForm profile={profileData} />}
           legal={<LegalForm profile={profileData} />}
           fiscal={<FiscalForm profile={profileData} />}
-          abonnement={<BillingTabContent plan={plan} usage={usage} />}
         />
       </Suspense>
     </div>

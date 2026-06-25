@@ -286,7 +286,7 @@ export default function InvoiceForm({
                 "Vous avez utilisé vos 3 factures ce mois-ci. Passez à Pro pour un accès illimité.",
               action: {
                 label: "Passer à Pro",
-                onClick: () => router.push("/settings?tab=abonnement"),
+                onClick: () => router.push("/settings/billing"),
               },
             });
             setLoading(false);

@@ -24,7 +24,7 @@ export default function CheckoutStatus({ status }: CheckoutStatusProps) {
       return;
     }
 
-    router.replace("/settings?tab=abonnement");
+    router.replace("/settings/billing");
   }, [status, router]);
 
   return null;
