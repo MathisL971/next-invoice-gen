@@ -22,6 +22,7 @@ import { getObligationSummary } from "@/lib/finance/obligations";
 import { getPlafondSummary } from "@/lib/finance/plafonds";
 import { buildDeclarationSummary } from "@/lib/finance/declarations";
 import { computePeriodCharges } from "@/lib/finance/charges";
+import { FISCAL_BASE_CURRENCY } from "@/lib/finance/currency";
 import type { FiscalSettings } from "@/lib/types/database";
 import TotalChargesCard from "@/components/cotisations/total-charges-card";
 
@@ -48,12 +49,12 @@ export default async function CotisationsPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("fiscal_settings, default_currency")
+    .select("fiscal_settings")
     .eq("id", user.id)
     .single();
 
   const fiscalSettings = (profile?.fiscal_settings || {}) as FiscalSettings;
-  const currency = profile?.default_currency || "EUR";
+  const fiscalCurrency = FISCAL_BASE_CURRENCY;
 
   if (!isFiscalSettingsComplete(fiscalSettings)) {
     return (
@@ -165,12 +166,12 @@ export default async function CotisationsPage() {
                 <TotalChargesCard
                   charges={charges}
                   periodTurnover={summary.periodSummary.turnover}
-                  currency={currency}
+                  currency={fiscalCurrency}
                 />
               </Card>
 
               <Card title={`Plafond CA ${plafond.year}`}>
-                <PlafondCard plafond={plafond} currency={currency} />
+                <PlafondCard plafond={plafond} currency={fiscalCurrency} />
               </Card>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -181,10 +182,10 @@ export default async function CotisationsPage() {
                         {summary.periodSummary.label}
                       </p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
-                        {formatCurrency(summary.periodSummary.cotisationsDue, currency)}
+                        {formatCurrency(summary.periodSummary.cotisationsDue, fiscalCurrency)}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        sur {formatCurrency(summary.periodSummary.turnover, currency)} de CA
+                        sur {formatCurrency(summary.periodSummary.turnover, fiscalCurrency)} de CA
                       </p>
                     </div>
                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 space-y-1">
@@ -212,16 +213,16 @@ export default async function CotisationsPage() {
                         {new Date().getFullYear()}
                       </p>
                       <p className="text-2xl font-semibold text-gray-900 dark:text-white mt-1">
-                        {formatCurrency(summary.ytdCotisations, currency)}
+                        {formatCurrency(summary.ytdCotisations, fiscalCurrency)}
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        sur {formatCurrency(summary.ytdTurnover, currency)} de CA
+                        sur {formatCurrency(summary.ytdTurnover, fiscalCurrency)} de CA
                       </p>
                     </div>
                     <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                       <p className="text-sm text-gray-600 dark:text-gray-400">
                         {Math.round(plafond.percentUsed)} % du plafond (
-                        {formatCurrency(plafond.remaining, currency)} restants)
+                        {formatCurrency(plafond.remaining, fiscalCurrency)} restants)
                       </p>
                     </div>
                   </div>
@@ -269,7 +270,7 @@ export default async function CotisationsPage() {
                 <DeclarationTracker
                   declaration={declaration}
                   initialReserve={reserve}
-                  currency={currency}
+                  currency={fiscalCurrency}
                 />
               </Card>
 
@@ -279,7 +280,7 @@ export default async function CotisationsPage() {
                   periodLabel={summary.periodSummary.label}
                   cotisationsDue={summary.periodSummary.cotisationsDue}
                   initialReserve={reserve}
-                  currency={currency}
+                  currency={fiscalCurrency}
                 />
               </Card>
 
@@ -318,10 +319,10 @@ export default async function CotisationsPage() {
                               {formatDate(inv.invoice_date)}
                             </td>
                             <td className="px-4 py-3 text-sm text-right text-gray-900 dark:text-white">
-                              {formatCurrency(inv.total_ht, inv.currency || currency)}
+                              {formatCurrency(inv.total_ht, inv.currency || fiscalCurrency)}
                             </td>
                             <td className="px-4 py-3 text-sm text-right font-medium text-amber-700 dark:text-amber-300">
-                              {formatCurrency(inv.reserveAmount, inv.currency || currency)}
+                              {formatCurrency(inv.reserveAmount, fiscalCurrency)}
                             </td>
                           </tr>
                         ))}
@@ -335,12 +336,12 @@ export default async function CotisationsPage() {
                             Total
                           </td>
                           <td className="px-4 py-3 text-sm text-right font-medium text-gray-900 dark:text-white">
-                            {formatCurrency(summary.periodSummary.turnover, currency)}
+                            {formatCurrency(summary.periodSummary.turnover, fiscalCurrency)}
                           </td>
                           <td className="px-4 py-3 text-sm text-right font-semibold text-amber-700 dark:text-amber-300">
                             {formatCurrency(
                               summary.periodSummary.cotisationsDue,
-                              currency
+                              fiscalCurrency
                             )}
                           </td>
                         </tr>
@@ -348,8 +349,10 @@ export default async function CotisationsPage() {
                     </table>
                   </div>
                   <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                    Montants basés sur la date de facture des factures payées. Aucune
-                    cotisation n&apos;est due si votre CA est nul sur la période.
+                    Montants basés sur la date de facture des factures payées. Les
+                    factures en devise étrangère sont converties en {fiscalCurrency} au
+                    taux du jour de facturation. Aucune cotisation n&apos;est due si
+                    votre CA est nul sur la période.
                   </p>
                 </Card>
               ) : (
@@ -367,7 +370,7 @@ export default async function CotisationsPage() {
               <ObligationTracker
                 obligations={obligationSummary.obligations}
                 year={obligationSummary.year}
-                currency={currency}
+                currency={fiscalCurrency}
               />
             </Card>
           }

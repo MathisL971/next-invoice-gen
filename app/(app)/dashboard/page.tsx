@@ -15,6 +15,7 @@ import {
   shouldShowDeclarationReminder,
 } from "@/lib/finance/declarations";
 import { computePeriodCharges } from "@/lib/finance/charges";
+import { FISCAL_BASE_CURRENCY } from "@/lib/finance/currency";
 import PlafondCard from "@/components/cotisations/plafond-card";
 import TotalChargesCard from "@/components/cotisations/total-charges-card";
 import type { FiscalSettings } from "@/lib/types/database";
@@ -67,12 +68,12 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("fiscal_settings, default_currency")
+    .select("fiscal_settings")
     .eq("id", user.id)
     .single();
 
   const fiscalSettings = (profile?.fiscal_settings || {}) as FiscalSettings;
-  const currency = profile?.default_currency || "EUR";
+  const fiscalCurrency = FISCAL_BASE_CURRENCY;
   const hasFiscalConfig = isFiscalSettingsComplete(fiscalSettings);
 
   let cotisationData = null;
@@ -135,7 +136,7 @@ export default async function DashboardPage() {
               label={`Cotisations (${cotisationData.periodSummary.label})`}
               value={formatCurrency(
                 cotisationData.periodSummary.cotisationsDue,
-                currency
+                fiscalCurrency
               )}
               icon={coinIcon}
               iconClassName="bg-amber-600 text-white"
@@ -144,7 +145,7 @@ export default async function DashboardPage() {
             />
             <StatCard
               label={`CA ${new Date().getFullYear()}`}
-              value={formatCurrency(cotisationData.ytdTurnover, currency)}
+              value={formatCurrency(cotisationData.ytdTurnover, fiscalCurrency)}
               icon={chartIcon}
               iconClassName="bg-[#1a454f] text-white"
               href="/cotisations"
@@ -164,7 +165,7 @@ export default async function DashboardPage() {
         <TotalChargesCard
           charges={chargesData}
           periodTurnover={cotisationData!.periodSummary.turnover}
-          currency={currency}
+          currency={fiscalCurrency}
           compact
         />
       )}
@@ -174,7 +175,7 @@ export default async function DashboardPage() {
           href="/cotisations"
           className="block overflow-hidden rounded-xl border border-white/80 bg-white/90 p-5 shadow-lg shadow-teal-900/5 ring-1 ring-teal-900/5 backdrop-blur-sm transition-all hover:shadow-xl hover:ring-teal-700/20 dark:border-stone-700/80 dark:bg-stone-900/90 dark:ring-teal-500/10"
         >
-          <PlafondCard plafond={plafondData} currency={currency} />
+          <PlafondCard plafond={plafondData} currency={fiscalCurrency} />
         </Link>
       )}
 
@@ -211,7 +212,7 @@ export default async function DashboardPage() {
                   <> · J-{declarationData.daysUntilDeadline}</>
                 )}
                 {" · CA estimé "}
-                {formatCurrency(declarationData.turnoverEstimate, currency)}
+                {formatCurrency(declarationData.turnoverEstimate, fiscalCurrency)}
               </p>
             </div>
             <span
@@ -245,7 +246,7 @@ export default async function DashboardPage() {
                   {formatCurrency(
                     obligationData.nextUnpaid.amountDue -
                       obligationData.nextUnpaid.amountPaid,
-                    currency
+                    fiscalCurrency
                   )}{" "}
                   restants · J-
                   {Math.max(0, obligationData.nextUnpaid.daysUntilDue)})

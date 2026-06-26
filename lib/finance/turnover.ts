@@ -1,4 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  convertAmountsToBaseCurrency,
+  FISCAL_BASE_CURRENCY,
+} from "./currency";
 import { computeCotisations, getApplicableRate } from "./cotisations-st-barth";
 import {
   getCurrentDeclarationPeriod,
@@ -12,6 +16,7 @@ export interface PaidInvoiceWithTotal {
   reference: string;
   invoice_date: string;
   total_ht: number;
+  total_ht_base: number;
   currency?: string;
 }
 
@@ -41,13 +46,15 @@ async function fetchPaidInvoicesWithTotals(
       (totals[item.invoice_id] || 0) + parseFloat(String(item.total_ht || 0));
   });
 
-  return invoices.map((inv) => ({
+  const rawInvoices = invoices.map((inv) => ({
     id: inv.id,
     reference: inv.reference,
     invoice_date: inv.invoice_date,
     total_ht: totals[inv.id] || 0,
     currency: inv.currency,
   }));
+
+  return convertAmountsToBaseCurrency(rawInvoices, FISCAL_BASE_CURRENCY);
 }
 
 function sumTurnoverInRange(
@@ -61,7 +68,7 @@ function sumTurnoverInRange(
   });
 
   return {
-    turnover: filtered.reduce((sum, inv) => sum + inv.total_ht, 0),
+    turnover: filtered.reduce((sum, inv) => sum + inv.total_ht_base, 0),
     invoiceCount: filtered.length,
   };
 }
@@ -105,7 +112,7 @@ export async function getCotisationSummary(
     .filter((inv) => isDateInPeriod(inv.invoice_date, currentPeriod))
     .map((inv) => ({
       ...inv,
-      reserveAmount: computeCotisations(inv.total_ht, settings),
+      reserveAmount: computeCotisations(inv.total_ht_base, settings),
     }));
 
   return {
