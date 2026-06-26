@@ -37,6 +37,8 @@ export interface FiscalSettings {
   declaration_frequency?: DeclarationFrequency;
   versement_liberatoire?: boolean;
   employee_count?: number;
+  /** Artisan BIC prestations use the higher TED bracket (390 €+). */
+  is_artisan?: boolean;
 }
 
 export interface Profile {

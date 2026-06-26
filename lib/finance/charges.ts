@@ -51,7 +51,12 @@ export function computePeriodCharges(
 
   const tedProrata = shouldIncludeObligation("ted", settings, year)
     ? Math.round(
-        (computeDefaultTedAmount(settings.activity_type) / periodsPerYear) *
+        (computeDefaultTedAmount(
+          settings.activity_type,
+          settings.employee_count ?? 0,
+          settings.is_artisan ?? false
+        ) /
+          periodsPerYear) *
           100
       ) / 100
     : 0;

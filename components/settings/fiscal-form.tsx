@@ -27,6 +27,7 @@ export default function FiscalForm({ profile }: FiscalFormProps) {
       profile.fiscal_settings?.declaration_frequency || "quarterly",
     versement_liberatoire: profile.fiscal_settings?.versement_liberatoire || false,
     employee_count: profile.fiscal_settings?.employee_count ?? 0,
+    is_artisan: profile.fiscal_settings?.is_artisan ?? false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,6 +68,10 @@ export default function FiscalForm({ profile }: FiscalFormProps) {
               setFiscalSettings({
                 ...fiscalSettings,
                 activity_type: e.target.value as ActivityType,
+                is_artisan:
+                  e.target.value === "prestations_bic"
+                    ? fiscalSettings.is_artisan
+                    : false,
               })
             }
             options={[
@@ -108,8 +113,28 @@ export default function FiscalForm({ profile }: FiscalFormProps) {
             }
           />
           <p className="-mt-2 text-xs text-gray-500 dark:text-gray-400">
-            Utilisé pour calculer la CFAE (350 € + 100 € par salarié).
+            Utilisé pour la CFAE (350 € + 100 € par salarié) et le barème TED
+            (entrepreneur inclus).
           </p>
+
+          {fiscalSettings.activity_type === "prestations_bic" && (
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                checked={fiscalSettings.is_artisan ?? false}
+                onChange={(e) =>
+                  setFiscalSettings({
+                    ...fiscalSettings,
+                    is_artisan: e.target.checked,
+                  })
+                }
+                className="rounded border-stone-300 text-teal-700 focus:ring-teal-600 dark:border-stone-600"
+              />
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Activité artisanale (barème TED majoré)
+              </span>
+            </label>
+          )}
 
           <label className="flex cursor-pointer items-center gap-2">
             <input

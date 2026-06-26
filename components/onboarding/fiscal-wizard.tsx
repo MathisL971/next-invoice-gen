@@ -54,6 +54,7 @@ export default function FiscalWizard({
       initialSettings?.declaration_frequency ?? "quarterly",
     versement_liberatoire: initialSettings?.versement_liberatoire ?? false,
     employee_count: initialSettings?.employee_count ?? 0,
+    is_artisan: initialSettings?.is_artisan ?? false,
   });
 
   const canContinue = () => {
@@ -148,6 +149,10 @@ export default function FiscalWizard({
                 setSettings({
                   ...settings,
                   activity_type: e.target.value as ActivityType,
+                  is_artisan:
+                    e.target.value === "prestations_bic"
+                      ? settings.is_artisan
+                      : false,
                 })
               }
               options={[
@@ -190,6 +195,24 @@ export default function FiscalWizard({
                 })
               }
             />
+            {settings.activity_type === "prestations_bic" && (
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={settings.is_artisan ?? false}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      is_artisan: e.target.checked,
+                    })
+                  }
+                  className="rounded border-stone-300 text-teal-700 focus:ring-teal-600 dark:border-stone-600"
+                />
+                <span className="text-sm text-stone-700 dark:text-stone-300">
+                  Activité artisanale (barème TED majoré)
+                </span>
+              </label>
+            )}
             <label className="flex cursor-pointer items-center gap-2">
               <input
                 type="checkbox"

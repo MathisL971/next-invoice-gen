@@ -33,9 +33,10 @@ export const OBLIGATION_DEFINITIONS: Record<
     label: "TED",
     fullName: "Taxe d'Élimination des Déchets",
     description:
-      "Taxe annuelle auprès d'Ouanalao Environnement. Montant selon votre activité et effectif (120 € pour les services/bureaux de moins de 2 personnes).",
-    paymentUrl: "https://www.ecocito.com",
-    paymentLabel: "Payer sur ecocito.com",
+      "Taxe annuelle auprès d'Ouanalao Environnement. Services/bureaux : 120 € (<2 pers.), 180 € (2–10), 240 € (>10). Artisans/commerce : 390 € (<2 pers.), 585 € (2–10), 780 € (>10).",
+    paymentUrl:
+      "https://ouanalaoenvironement.ecocito.com/Usager/Profil/Connexion?ReturnUrl=/Usager/Accueil",
+    paymentLabel: "Payer sur Ouanalao Environnement",
     dueMonth: 3,
     dueDay: 31,
   },
@@ -44,28 +45,43 @@ export const OBLIGATION_DEFINITIONS: Record<
 const CFAE_BASE = 350;
 const CFAE_PER_EMPLOYEE = 100;
 
-/** Default TED for service/bureau activities with fewer than 2 employees. */
-const TED_SERVICE_DEFAULT = 120;
-/** Default TED for commerce/artisan (minimum bracket). */
-const TED_COMMERCE_DEFAULT = 390;
+/** TED brackets by total headcount (entrepreneur + salariés). */
+const TED_BUREAU_BRACKETS = [120, 180, 240] as const;
+const TED_ARTISAN_COMMERCE_BRACKETS = [390, 585, 780] as const;
 
 export function computeCfaeAmount(employeeCount = 0): number {
   return CFAE_BASE + employeeCount * CFAE_PER_EMPLOYEE;
 }
 
-export function computeDefaultTedAmount(
-  activityType?: ActivityType
+function computeTedFromBrackets(
+  employeeCount: number,
+  brackets: readonly [number, number, number]
 ): number {
-  if (!activityType) return TED_SERVICE_DEFAULT;
+  const headcount = employeeCount + 1;
+  if (headcount < 2) return brackets[0];
+  if (headcount <= 10) return brackets[1];
+  return brackets[2];
+}
 
-  switch (activityType) {
-    case "vente_bic":
-      return TED_COMMERCE_DEFAULT;
-    case "prestations_bic":
-      return TED_COMMERCE_DEFAULT;
-    default:
-      return TED_SERVICE_DEFAULT;
-  }
+function usesArtisanCommerceTedBracket(
+  activityType?: ActivityType,
+  isArtisan?: boolean
+): boolean {
+  if (activityType === "vente_bic") return true;
+  if (activityType === "prestations_bic" && isArtisan) return true;
+  return false;
+}
+
+export function computeDefaultTedAmount(
+  activityType?: ActivityType,
+  employeeCount = 0,
+  isArtisan = false
+): number {
+  const brackets = usesArtisanCommerceTedBracket(activityType, isArtisan)
+    ? TED_ARTISAN_COMMERCE_BRACKETS
+    : TED_BUREAU_BRACKETS;
+
+  return computeTedFromBrackets(employeeCount, brackets);
 }
 
 /**
@@ -96,7 +112,11 @@ export function getDefaultAmountDue(
   if (type === "cfae") {
     return computeCfaeAmount(settings.employee_count ?? 0);
   }
-  return computeDefaultTedAmount(settings.activity_type);
+  return computeDefaultTedAmount(
+    settings.activity_type,
+    settings.employee_count ?? 0,
+    settings.is_artisan ?? false
+  );
 }
 
 export function shouldIncludeObligation(
